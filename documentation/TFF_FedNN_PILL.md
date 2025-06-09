@@ -46,7 +46,7 @@ class PillModel:
 
 ## Key Parameters
 - `num_clients = 10`: Number of federated learning clients
-- `image_shape = (256, 256, 3)`: Input image dimensions
+- `image_shape = (256, 256, 3)`: Input image dimensions(256 height, 256 width, 3 colors red blue green)
 - `num_categories = 2`: Number of classes (binary classification)
 - `num_rounds = 20`: Number of federated learning rounds
 - `num_epochs = 10`: Number of local epochs per round

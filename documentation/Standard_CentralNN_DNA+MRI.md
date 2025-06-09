@@ -1,10 +1,11 @@
 # Standard Centralized Neural Network for DNA+MRI Multimodal Dataset
 
 ## Overview
-This notebook implements a centralized neural network approach for a multimodal dataset combining DNA sequences and MRI images. The model performs two classification tasks simultaneously, one for each modality.
+This notebook trains one neural network using two types of data at the same time — DNA sequences and MRI images. The model tries to classify DNA and MRI using a single, central model.
 
 ## Model Architecture
 - Multimodal architecture with separate networks for each data type:
+  - **Convulation Neural Network (CNN)**: A Neural Network used for classify images by recognizing paterns like edges, shapes, and textures in an image.
   - **MRINet**: A CNN for processing MRI images
     - Convolutional layers with ReLU activations and max pooling
     - Fully connected layers that reduce to a shared expert vector
