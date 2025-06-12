@@ -1,365 +1,304 @@
-# Fed ML Library
+# Fed-ML-Lib: Complete Federated Learning Library
 
-A Python library for federated learning and centralized machine learning with support for quantum neural networks.
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)](https://pytorch.org/)
+[![Flower](https://img.shields.io/badge/Flower-1.5+-green.svg)](https://flower.dev/)
+[![PennyLane](https://img.shields.io/badge/PennyLane-0.28+-orange.svg)](https://pennylane.ai/)
 
-## Features
+A comprehensive federated learning library that supports both **classical** and **quantum** machine learning models with advanced federated strategies and multimodal capabilities.
 
-- **Centralized Training**: Train models on a single machine
-- **Federated Learning**: Distributed training across multiple clients (coming soon)
-- **Quantum Neural Networks**: Support for quantum models using PennyLane
-- **Hybrid Models**: Combine classical and quantum components
-- **Multiple Datasets**: Easy integration with various datasets
-- **Visualization**: Automatic plotting of training curves, confusion matrices, and ROC curves
+## 🌟 Key Features
 
-## Installation
+### 🤖 **Model Support**
+- **Classical Models**: VGG16-based CNNs for image classification
+- **Quantum Models**: PennyLane-based quantum neural networks
+- **Hybrid Models**: Classical-quantum hybrid architectures
+- **Multimodal Support**: Framework for multi-input models (images + sequences)
 
-### From Source
+### 🌐 **Federated Learning**
+- **Complete Flower Integration**: Full client-server implementation
+- **Custom Strategies**: Advanced aggregation methods (FedCustom with dynamic learning rates)
+- **Data Partitioning**: IID, non-IID, and Dirichlet distribution strategies
+- **Server-side Evaluation**: Centralized model evaluation with visualization
 
-1. Clone the repository:
+### ⚙️ **Configuration Management**
+- **YAML/JSON Configs**: Flexible experiment configuration
+- **Predefined Templates**: Ready-to-use configurations for different scenarios
+- **Type Safety**: Dataclass-based configuration with validation
+
+### 📊 **Visualization & Analysis**
+- **Training Curves**: Real-time training progress visualization
+- **Confusion Matrices**: Per-client and server-side evaluation
+- **ROC Curves**: Binary classification performance analysis
+- **Federated Metrics**: Aggregated performance tracking
+
+## 🚀 Quick Start
+
+### Installation
+
 ```bash
-git clone <repository-url>
-cd Fed-ML-Chem
+# Basic installation
+pip install fed-ml-lib
+
+# With GPU support
+pip install fed-ml-lib[gpu]
+
+# With quantum computing support
+pip install fed-ml-lib[quantum]
+
+# Complete installation (all features)
+pip install fed-ml-lib[all]
 ```
 
-2. Install dependencies:
-```bash
-# For CPU version
-pip install .[cpu]
-
-# For GPU version  
-pip install .[gpu]
-
-# For all dependencies
-pip install .[all]
-```
-
-## Quick Start
-
-### Centralized Training (Classical)
+### Simple Federated Learning Example
 
 ```python
 import torch
-import torch.nn as nn
-import torch.optim as optim
+from fed_ml_lib import create_model, create_federated_data_loaders, FedCustom
+from fed_ml_lib.client import create_client
+import flwr as fl
 
-from fed_ml_lib.models import VGG16Classifier
-from fed_ml_lib.engine import run_central_training
-from fed_ml_lib.datasets import create_data_loaders, get_dataset_info
+# 1. Create model
+model = create_model("vgg16", num_classes=2)
 
-# Configuration
-dataset_name = 'PILL'  # or 'Wafer', 'CIFAR', etc.
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-# Get dataset info and create data loaders
-dataset_info = get_dataset_info(dataset_name, './data/')
-train_loader, val_loader, test_loader = create_data_loaders(
-    dataset_name=dataset_name,
-    data_path='./data/',
-    batch_size=32,
-    resize=224,
-    val_split=0.1,
-    seed=42
+# 2. Create federated data loaders
+train_loaders, val_loaders, test_loader = create_federated_data_loaders(
+    dataset_name="PILL",
+    data_path="./data/",
+    num_clients=5,
+    partition_strategy="iid"
 )
 
-# Create model, optimizer, and loss function
-model = VGG16Classifier(num_classes=dataset_info['num_classes'])
-optimizer = optim.Adam(model.parameters(), lr=2e-4)
-loss_fn = nn.CrossEntropyLoss()
+# 3. Define client function
+def client_fn(cid: str):
+    client_id = int(cid)
+    model = create_model("vgg16", num_classes=2)
+    return create_client(
+        client_id=cid,
+        model=model,
+        train_loader=train_loaders[client_id],
+        val_loader=val_loaders[client_id],
+        device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    )
 
-# Train the model
-results = run_central_training(
-    model=model,
-    train_loader=train_loader,
-    val_loader=val_loader,
-    optimizer=optimizer,
-    loss_fn=loss_fn,
-    device=device,
-    epochs=25,
-    results_dir='./results/',
-    plot_results=True
+# 4. Create strategy
+strategy = FedCustom(
+    fraction_fit=1.0,
+    min_fit_clients=3,
+    learning_rate_strategy="split"  # Different LRs for different clients
+)
+
+# 5. Run federated learning
+history = fl.simulation.start_simulation(
+    client_fn=client_fn,
+    num_clients=5,
+    config=fl.server.ServerConfig(num_rounds=10),
+    strategy=strategy
 )
 ```
 
-### Quantum Training
+### Quantum Federated Learning
 
 ```python
-from fed_ml_lib.models import HybridCNN_QNN, QuantumNet, create_model
+from fed_ml_lib import create_model
 
-# Option 1: Hybrid CNN-Quantum model
-model = HybridCNN_QNN(
-    num_classes=dataset_info['num_classes'],
+# Create quantum model
+quantum_model = create_model(
+    model_type="hybrid_cnn_qnn",
+    num_classes=2,
     n_qubits=4,
     n_layers=2
 )
 
-# Option 2: Pure quantum model
-model = QuantumNet(
-    input_size=784,  # For flattened 28x28 images
-    num_classes=dataset_info['num_classes'],
-    n_qubits=6,
-    n_layers=3
+# Use smaller batches and images for quantum models
+train_loaders, val_loaders, test_loader = create_federated_data_loaders(
+    dataset_name="PILL",
+    batch_size=8,  # Smaller batches
+    resize=64,     # Smaller images
+    num_clients=3
 )
-
-# Option 3: Using factory function
-model = create_model(
-    model_type='hybrid_cnn_qnn',
-    num_classes=dataset_info['num_classes'],
-    n_qubits=4,
-    n_layers=2
-)
-
-# Train as usual
-optimizer = optim.Adam(model.parameters(), lr=1e-3)
-results = run_central_training(model, train_loader, val_loader, optimizer, loss_fn, device)
 ```
 
-## Library Structure
+### Configuration-Based Experiments
+
+```python
+from fed_ml_lib.config import ExperimentConfig
+
+# Load configuration
+config = ExperimentConfig.from_yaml("experiments/quantum_federated.yaml")
+
+# Or create programmatically
+config = ExperimentConfig(
+    model=ModelConfig(
+        model_type="vgg16",
+        model_params={}
+    ),
+    data=DataConfig(
+        dataset_name="PILL",
+        partition_strategy="non_iid"
+    ),
+    training=TrainingConfig(
+        num_clients=5,
+        num_rounds=10,
+        learning_rate_strategy="adaptive"
+    )
+)
+
+# Run experiment
+from examples.federated_learning_example import run_federated_experiment
+results = run_federated_experiment(config)
+```
+
+## 📚 Comprehensive Examples
+
+### 1. **Classical Federated Learning**
+```bash
+python examples/central_training_example.py
+python examples/federated_learning_example.py
+```
+
+### 2. **Quantum Federated Learning**
+```bash
+python examples/quantum_training_example.py
+```
+
+### 3. **Custom Strategies**
+```python
+from fed_ml_lib.server import FedCustom
+
+strategy = FedCustom(
+    learning_rate_strategy="split",  # Split clients into groups
+    base_learning_rate=0.001,
+    higher_learning_rate=0.003,
+    fraction_fit=0.8,  # Sample 80% of clients per round
+    min_fit_clients=3
+)
+```
+
+### 4. **Data Partitioning Strategies**
+```python
+# IID partitioning (default)
+train_loaders, _, _ = create_federated_data_loaders(
+    dataset_name="PILL",
+    partition_strategy="iid"
+)
+
+# Non-IID partitioning (limited classes per client)
+train_loaders, _, _ = create_federated_data_loaders(
+    dataset_name="PILL",
+    partition_strategy="non_iid"
+)
+
+# Dirichlet partitioning (realistic non-IID)
+train_loaders, _, _ = create_federated_data_loaders(
+    dataset_name="PILL",
+    partition_strategy="dirichlet"
+)
+```
+
+## 🏗️ Architecture Overview
 
 ```
 fed_ml_lib/
-├── __init__.py          # Package initialization
-├── models.py            # Model architectures (Classical, Quantum, Hybrid)
-├── engine.py            # Training and evaluation loops
-├── datasets.py          # Dataset loading and preprocessing
-├── utils.py             # Utility functions (plotting, metrics)
-├── client.py            # Federated learning client logic
-├── server.py            # Federated learning server logic
-└── config.py            # Configuration management
+├── models.py          # Classical & quantum model definitions
+├── datasets.py        # Data loading & federated partitioning
+├── client.py          # Flower client implementations
+├── server.py          # Custom federated strategies
+├── engine.py          # Training & evaluation loops
+├── utils.py           # Visualization & utility functions
+├── config.py          # Configuration management
+└── __init__.py        # Main library interface
 ```
 
-## Supported Datasets
+## 🔧 Advanced Features
 
-The library supports various dataset formats:
+### Custom Federated Strategies
 
-- **Image Datasets**: PILL, Wafer, and any dataset with Training/Testing folder structure
-- **Standard Datasets**: CIFAR-10 (automatically downloaded)
-- **Custom Datasets**: Easy integration with your own datasets
+The library includes `FedCustom`, an advanced federated strategy with:
 
-### Dataset Structure
+- **Dynamic Learning Rates**: Different learning rates for different client groups
+- **Flexible Client Sampling**: Configurable client participation rates
+- **Server-side Evaluation**: Centralized model evaluation with visualization
+- **Failure Handling**: Robust handling of client failures
 
-For custom image datasets, organize your data as follows:
+### Quantum Computing Integration
 
-```
-data/
-└── YourDataset/
-    ├── Training/
-    │   ├── class1/
-    │   ├── class2/
-    │   └── ...
-    └── Testing/
-        ├── class1/
-        ├── class2/
-        └── ...
-```
+Full integration with PennyLane for quantum machine learning:
 
-## Models
+- **Quantum Circuits**: Parameterized quantum circuits with angle embedding
+- **Hybrid Models**: Classical preprocessing + quantum processing
+- **Variational Algorithms**: VQC (Variational Quantum Classifier) support
+- **Hardware Compatibility**: Support for various quantum backends
+
+### Multimodal Learning Framework
+
+Extensible framework for multimodal federated learning:
+
+- **Multiple Input Types**: Images, sequences, graphs, etc.
+- **Attention Mechanisms**: Cross-modal attention for data fusion
+- **Flexible Architecture**: Easy extension to new modalities
+
+## 📊 Supported Datasets
+
+- **PILL**: Pharmaceutical pill quality classification
+- **DNA**: DNA sequence classification
+- **Wafer**: Semiconductor wafer defect detection
+- **HIV**: HIV drug activity prediction
+- **CIFAR-10**: Standard computer vision benchmark
+- **Custom Datasets**: Easy integration of new datasets
+
+## 🎯 Performance Considerations
 
 ### Classical Models
-
-#### VGG16Classifier
-
-A CNN model based on VGG16 pretrained on ImageNet:
-
-```python
-from fed_ml_lib.models import VGG16Classifier
-
-model = VGG16Classifier(num_classes=2)  # Binary classification
-model = VGG16Classifier(num_classes=10) # Multi-class classification
-```
-
-Features:
-- Pretrained VGG16 feature extractor
-- Custom classification head
-- Frozen early layers for transfer learning
+- **Batch Size**: 16-32 for optimal performance
+- **Image Size**: 224x224 for VGG16-based models
+- **Clients**: 5-10 clients for simulation
 
 ### Quantum Models
+- **Batch Size**: 4-8 (quantum circuits are computationally intensive)
+- **Image Size**: 32x32 or 64x64 (smaller for faster quantum processing)
+- **Qubits**: 4-8 qubits for practical simulation
+- **Layers**: 2-4 variational layers
 
-#### HybridCNN_QNN
+## 🤝 Contributing
 
-A hybrid CNN-Quantum neural network that combines classical convolutional layers with quantum processing:
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-```python
-from fed_ml_lib.models import HybridCNN_QNN
-
-model = HybridCNN_QNN(
-    num_classes=2,
-    n_qubits=4,      # Number of qubits in quantum circuit
-    n_layers=2       # Number of variational layers
-)
-```
-
-Features:
-- CNN feature extraction
-- Quantum variational layers
-- Suitable for image classification
-
-#### QuantumNet
-
-A hybrid model with classical preprocessing and quantum processing:
-
-```python
-from fed_ml_lib.models import QuantumNet
-
-model = QuantumNet(
-    input_size=784,   # Input feature size
-    num_classes=10,
-    n_qubits=6,
-    n_layers=3
-)
-```
-
-Features:
-- Classical preprocessing layers
-- Quantum circuit with angle embedding
-- Classical post-processing
-
-#### VariationalQuantumClassifier
-
-A pure variational quantum classifier:
-
-```python
-from fed_ml_lib.models import VariationalQuantumClassifier
-
-model = VariationalQuantumClassifier(
-    input_size=4,
-    num_classes=2,
-    n_qubits=4,
-    n_layers=3
-)
-```
-
-Features:
-- Pure quantum processing
-- Variational quantum circuits
-- Parameterized quantum gates
-
-### Model Factory
-
-Use the factory function for easy model creation:
-
-```python
-from fed_ml_lib.models import create_model
-
-# Classical model
-model = create_model('vgg16', num_classes=10)
-
-# Quantum models
-model = create_model('hybrid_cnn_qnn', num_classes=2, n_qubits=4, n_layers=2)
-model = create_model('quantum', num_classes=10, input_size=784, n_qubits=6)
-model = create_model('vqc', num_classes=2, input_size=4, n_qubits=4)
-```
-
-## Examples
-
-### Running Example Scripts
+### Development Setup
 
 ```bash
-# Classical training
-cd examples
-python central_training_example.py
+# Clone repository
+git clone https://github.com/fed-ml-chem/fed-ml-lib.git
+cd fed-ml-lib
 
-# Quantum training
-python quantum_training_example.py
+# Install in development mode
+pip install -e .[dev]
+
+# Run tests
+pytest tests/
+
+# Format code
+black fed_ml_lib/
+isort fed_ml_lib/
 ```
 
-### Customizing for Your Dataset
+## 📄 License
 
-1. Change the `dataset_name` in the example script
-2. Ensure your dataset follows the expected folder structure
-3. Adjust hyperparameters as needed
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-```python
-config = {
-    'dataset_name': 'YourDataset',  # Change this
-    'data_path': './data/',
-    'batch_size': 32,              # Use smaller batches for quantum models
-    'resize': 224,                 # Use smaller images for quantum models
-    'epochs': 25,
-    'learning_rate': 2e-4,         # Use smaller LR for quantum models
-    'model_type': 'hybrid_cnn_qnn', # Choose model type
-    'n_qubits': 4,                 # Quantum parameters
-    'n_layers': 2,
-}
-```
+## 🙏 Acknowledgments
 
-## Quantum Computing Notes
+- **Flower**: For the excellent federated learning framework
+- **PennyLane**: For quantum computing capabilities
+- **PyTorch**: For the deep learning foundation
+- **PURDUE SURF Program**: For supporting this research
 
-### Performance Considerations
+## 📞 Support
 
-- **Quantum models are slower**: Due to quantum circuit simulation
-- **Use smaller batch sizes**: Recommended 8-16 for quantum models
-- **Use smaller images**: 32x32 or 64x64 for quantum processing
-- **Fewer epochs**: Quantum models may converge faster
+- **Documentation**: [https://fed-ml-lib.readthedocs.io](https://fed-ml-lib.readthedocs.io)
+- **Issues**: [GitHub Issues](https://github.com/fed-ml-chem/fed-ml-lib/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/fed-ml-chem/fed-ml-lib/discussions)
 
-### Hardware Requirements
+---
 
-- **CPU**: Works on any CPU (quantum simulation)
-- **GPU**: Limited benefit for quantum circuits (classical parts only)
-- **Memory**: Quantum simulation can be memory-intensive
-
-### Quantum Circuit Design
-
-- **Angle Embedding**: Encodes classical data into quantum states
-- **Variational Layers**: Parameterized quantum gates for learning
-- **Entanglement**: Creates quantum correlations between qubits
-- **Measurements**: Extract classical information from quantum states
-
-## API Reference
-
-### Engine Functions
-
-- `run_central_training()`: Main function for centralized training
-- `train()`: Core training loop
-- `test()`: Evaluation function
-
-### Dataset Functions
-
-- `create_data_loaders()`: Create train/val/test data loaders
-- `get_dataset_info()`: Get dataset metadata
-- `get_transforms()`: Get appropriate data transforms
-
-### Model Functions
-
-- `create_model()`: Factory function for model creation
-- `VGG16Classifier()`: Classical CNN model
-- `HybridCNN_QNN()`: Hybrid CNN-Quantum model
-- `QuantumNet()`: Hybrid classical-quantum model
-- `VariationalQuantumClassifier()`: Pure quantum model
-
-### Utility Functions
-
-- `save_graphs()`: Save training curves
-- `save_matrix()`: Save confusion matrix
-- `save_roc()`: Save ROC curves
-- `get_parameters()`: Extract model parameters
-- `set_parameters()`: Set model parameters
-
-## Results and Visualization
-
-The library automatically generates:
-
-- **Training Curves**: Loss and accuracy over epochs
-- **Confusion Matrix**: Classification performance visualization
-- **ROC Curves**: For binary classification tasks
-
-Results are saved to the specified `results_dir`.
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## License
-
-[Add your license information here]
-
-## Citation
-
-If you use this library in your research, please cite:
-
-```bibtex
-[Add citation information here]
-``` 
+**Fed-ML-Lib** - Empowering federated learning research with classical and quantum machine learning capabilities. 🚀🔬 

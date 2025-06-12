@@ -1,27 +1,55 @@
 [project]
-name = "qfl"
-version = "0.1.0"
-description = "Quantum federated learning tools"
-# … other fields …
+name = "fed-ml-lib"
+version = "1.0.0"
+description = "A complete federated learning library for classical and quantum machine learning"
+readme = "fed_ml_lib/README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Fed-ML-Chem Team", email = "fed-ml-chem@example.com"}
+]
+keywords = ["federated learning", "quantum machine learning", "deep learning", "pytorch", "pennylane"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+requires-python = ">=3.8"
 
 [project.dependencies]
 numpy = ">=1.24"
+torch = ">=2.0"
+torchvision = ">=0.15"
+flwr = ">=1.5.0"
 pennylane = ">=0.28"
+matplotlib = ">=3.5"
+scikit-learn = ">=1.0"
+pyyaml = ">=6.0"
+tqdm = ">=4.60"
 
 [project.optional-dependencies]
 cpu = [
   "torch==2.3.1; platform_system!='Windows'",
   "torchvision==0.18.1; platform_system!='Windows'",
   "torchaudio==2.3.1; platform_system!='Windows'",
-  "flwr==1.5.0",
-  "tqdm",
-  "ray>=2.3.0",
-  "matplotlib",
-  "pillow",
-  "scikit-learn",
-  "seaborn",
-  "pandas",
-  "pyyaml",
+  "flwr[simulation]==1.5.0",
+  "pennylane>=0.28",
+  "numpy>=1.24",
+  "matplotlib>=3.5",
+  "pillow>=8.0",
+  "scikit-learn>=1.0",
+  "seaborn>=0.11",
+  "pandas>=1.3",
+  "pyyaml>=6.0",
+  "tqdm>=4.60",
+  "ray[default]>=2.3.0",
   "kaggle",
   "sentence_transformers",
   "rdkit",
@@ -36,19 +64,19 @@ gpu = [
   "torch==2.4.0+cu121; platform_system!='Windows'",
   "torchvision==0.19.0+cu121; platform_system!='Windows'",
   "torchaudio==2.4.0+cu121; platform_system!='Windows'",
-  "flwr==1.5.0",
+  "flwr[simulation]==1.5.0",
+  "pennylane>=0.28",
   "numpy==1.26.4",
-  "pennylane",
-  "ray>=2.3.0",
-  "matplotlib",
-  "pillow",
-  "scikit-learn",
-  "seaborn",
-  "pandas",
-  "pyyaml",
+  "matplotlib>=3.5",
+  "pillow>=8.0",
+  "scikit-learn>=1.0",
+  "seaborn>=0.11",
+  "pandas>=1.3",
+  "pyyaml>=6.0",
+  "tqdm>=4.60",
+  "ray[default]>=2.3.0",
   "kaggle",
   "sentence_transformers",
-  "tqdm",
   "rdkit",
   "torch-geometric",
   "pyg_lib",
@@ -56,29 +84,80 @@ gpu = [
   "torch_sparse",
   "torch_cluster",
   "torch_spline_conv"
+]
+quantum = [
+  "pennylane>=0.28",
+  "pennylane-lightning>=0.28",
+  "pennylane-qiskit>=0.28",
+  "qiskit>=0.45",
+  "qiskit-aer>=0.12"
+]
+dev = [
+  "pytest>=7.0",
+  "pytest-cov>=4.0",
+  "black>=22.0",
+  "isort>=5.10",
+  "flake8>=5.0",
+  "mypy>=1.0",
+  "jupyter>=1.0",
+  "notebook>=6.4"
 ]
 all = [
   "torch>=2.0",
-  "torchvision>=0.18.1",
-  "torchaudio>=2.3.1",
-  "flwr==1.5.0",
-  "numpy>=1.24",
+  "torchvision>=0.15",
+  "torchaudio>=2.0",
+  "flwr[simulation]>=1.5.0",
   "pennylane>=0.28",
-  "ray>=2.3.0",
-  "matplotlib",
-  "pillow",
-  "scikit-learn",
-  "seaborn",
-  "pandas",
-  "pyyaml",
+  "pennylane-lightning>=0.28",
+  "numpy>=1.24",
+  "matplotlib>=3.5",
+  "pillow>=8.0",
+  "scikit-learn>=1.0",
+  "seaborn>=0.11",
+  "pandas>=1.3",
+  "pyyaml>=6.0",
+  "tqdm>=4.60",
+  "ray[default]>=2.3.0",
   "kaggle",
   "sentence_transformers",
-  "tqdm",
   "rdkit",
   "torch-geometric",
   "pyg_lib",
   "torch_scatter",
   "torch_sparse",
   "torch_cluster",
-  "torch_spline_conv"
+  "torch_spline_conv",
+  "qiskit>=0.45",
+  "qiskit-aer>=0.12"
 ]
+
+[project.urls]
+Homepage = "https://github.com/fed-ml-chem/fed-ml-lib"
+Documentation = "https://fed-ml-lib.readthedocs.io"
+Repository = "https://github.com/fed-ml-chem/fed-ml-lib.git"
+Issues = "https://github.com/fed-ml-chem/fed-ml-lib/issues"
+
+[project.scripts]
+fed-ml-train = "fed_ml_lib.cli:main"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["fed_ml_lib*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311']
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
