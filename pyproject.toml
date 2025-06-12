@@ -1,0 +1,84 @@
+[project]
+name = "qfl"
+version = "0.1.0"
+description = "Quantum federated learning tools"
+# … other fields …
+
+[project.dependencies]
+numpy = ">=1.24"
+pennylane = ">=0.28"
+
+[project.optional-dependencies]
+cpu = [
+  "torch==2.3.1; platform_system!='Windows'",
+  "torchvision==0.18.1; platform_system!='Windows'",
+  "torchaudio==2.3.1; platform_system!='Windows'",
+  "flwr==1.5.0",
+  "tqdm",
+  "ray>=2.3.0",
+  "matplotlib",
+  "pillow",
+  "scikit-learn",
+  "seaborn",
+  "pandas",
+  "pyyaml",
+  "kaggle",
+  "sentence_transformers",
+  "rdkit",
+  "torch-geometric",
+  "pyg_lib",
+  "torch_scatter",
+  "torch_sparse",
+  "torch_cluster",
+  "torch_spline_conv"
+]
+gpu = [
+  "torch==2.4.0+cu121; platform_system!='Windows'",
+  "torchvision==0.19.0+cu121; platform_system!='Windows'",
+  "torchaudio==2.4.0+cu121; platform_system!='Windows'",
+  "flwr==1.5.0",
+  "numpy==1.26.4",
+  "pennylane",
+  "ray>=2.3.0",
+  "matplotlib",
+  "pillow",
+  "scikit-learn",
+  "seaborn",
+  "pandas",
+  "pyyaml",
+  "kaggle",
+  "sentence_transformers",
+  "tqdm",
+  "rdkit",
+  "torch-geometric",
+  "pyg_lib",
+  "torch_scatter",
+  "torch_sparse",
+  "torch_cluster",
+  "torch_spline_conv"
+]
+all = [
+  "torch>=2.0",
+  "torchvision>=0.18.1",
+  "torchaudio>=2.3.1",
+  "flwr==1.5.0",
+  "numpy>=1.24",
+  "pennylane>=0.28",
+  "ray>=2.3.0",
+  "matplotlib",
+  "pillow",
+  "scikit-learn",
+  "seaborn",
+  "pandas",
+  "pyyaml",
+  "kaggle",
+  "sentence_transformers",
+  "tqdm",
+  "rdkit",
+  "torch-geometric",
+  "pyg_lib",
+  "torch_scatter",
+  "torch_sparse",
+  "torch_cluster",
+  "torch_spline_conv"
+]
