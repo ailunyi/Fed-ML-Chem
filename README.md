@@ -66,6 +66,56 @@ The comprehensive results section can be seen:
         └── __init__.py
 ```
 
+## 🚀 NEW: Modular Architecture System
+
+Fed-ML-Lib now features a **truly modular architecture** that allows you to combine any classical neural network with any combination of FHE encryption and quantum computing techniques!
+
+### Key Features
+- **🧱 Mix & Match**: Combine any base architecture (CNN, MLP, GCN, Pretrained) with any enhancements
+- **🔐 Granular FHE**: Add encryption to specific layers only  
+- **⚛️ Flexible Quantum**: Add quantum processing to any layers
+- **🔄 Full Composability**: Use FHE + Quantum together in the same model
+- **⚙️ Easy Configuration**: Simple API for complex combinations
+
+### Quick Start with Modular System
+
+```python
+from fed_ml_lib.models import (
+    create_modular_model, create_classical_model, 
+    create_fhe_quantum_model
+)
+
+# Pure classical CNN
+model = create_classical_model('cnn', input_shape=(3,32,32), num_classes=10)
+
+# CNN with FHE encryption on classifier only
+model = create_modular_model('cnn', use_fhe=True, fhe_layers=['classifier'])
+
+# CNN with quantum enhancement on features only  
+model = create_modular_model('cnn', use_quantum=True, quantum_layers=['features'])
+
+# CNN with BOTH FHE and quantum (different layers)
+model = create_fhe_quantum_model(
+    'cnn', 
+    fhe_layers=['classifier'],      # Encrypt classifier
+    quantum_layers=['features']     # Quantum-enhance features
+)
+```
+
+### Supported Combinations
+| Base Architecture | + FHE Encryption | + Quantum Processing | + Both |
+|-------------------|------------------|---------------------|---------|
+| CNN | ✅ | ✅ | ✅ |
+| MLP | ✅ | ✅ | ✅ |
+| GCN | ✅ | ✅ | ✅ |
+| Pretrained CNN | ✅ | ✅ | ✅ |
+
+### Example: Run the Modular Demo
+
+```bash
+python examples/modular_training_example.py
+```
+
 ### Installation
 
 #### Clone the Repository

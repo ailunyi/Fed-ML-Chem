@@ -1,6 +1,6 @@
-data
+examples/data
 *.pkl
-results
+examples/results
 *.pt
 *pycache*
 .DS_Store

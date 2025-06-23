@@ -12,30 +12,35 @@ A comprehensive library for federated learning with support for:
 Quick Start:
 -----------
 ```python
-from fed_ml_lib import create_model, create_federated_data_loaders, FedCustom
-from fed_ml_lib.client import create_client
-from fed_ml_lib.config import ExperimentConfig
+from fed_ml_lib.config import run_experiment, pill_cnn, quantum_mri
+from fed_ml_lib.models import create_model, create_quantum_model
 
-# Create model
-model = create_model("vgg16", num_classes=10)
-
-# Create federated data
-train_loaders, val_loaders, test_loader = create_federated_data_loaders(
-    dataset_name="PILL", num_clients=5
+# Simple experiment configuration
+config = run_experiment(
+    name="my_experiment",
+    dataset="PILL",
+    model="cnn",
+    epochs=25,
+    use_quantum=True
 )
 
-# Run federated learning
-# See examples/federated_learning_example.py for complete example
+# Create models directly
+model = create_model('cnn', input_shape=(3, 224, 224), num_classes=10)
+quantum_model = create_quantum_model('cnn', input_shape=(3, 224, 224), 
+                                   num_classes=10, n_qubits=4)
+
+# See examples/python_config_example.py for complete examples
 ```
 """
 
 # Core components
 from .models import (
-    VGG16Classifier,
-    QuantumNet,
-    HybridCNN_QNN,
-    VariationalQuantumClassifier,
-    create_model
+    create_model,
+    create_modular_model,
+    create_classical_model,
+    create_fhe_model,
+    create_quantum_model,
+    create_fhe_quantum_model
 )
 
 from .datasets import (
@@ -76,13 +81,14 @@ from .utils import (
 )
 
 from .config import (
-    ModelConfig,
-    DataConfig,
-    TrainingConfig,
-    ExperimentConfig,
-    ConfigManager,
-    load_experiment_config,
-    create_custom_config
+    run_experiment,
+    pill_cnn,
+    dna_mlp, 
+    mri_cnn,
+    federated_pill,
+    quantum_mri,
+    fhe_dna,
+    hybrid_pill
 )
 
 # Version info
@@ -93,11 +99,12 @@ __description__ = "A complete federated learning library for classical and quant
 # Define what gets imported with "from fed_ml_lib import *"
 __all__ = [
     # Models
-    "VGG16Classifier",
-    "QuantumNet", 
-    "HybridCNN_QNN",
-    "VariationalQuantumClassifier",
     "create_model",
+    "create_modular_model",
+    "create_classical_model",
+    "create_fhe_model",
+    "create_quantum_model",
+    "create_fhe_quantum_model",
     
     # Datasets
     "create_data_loaders",
@@ -132,11 +139,12 @@ __all__ = [
     "set_seed",
     
     # Config
-    "ModelConfig",
-    "DataConfig",
-    "TrainingConfig", 
-    "ExperimentConfig",
-    "ConfigManager",
-    "load_experiment_config",
-    "create_custom_config",
+    "run_experiment",
+    "pill_cnn",
+    "dna_mlp",
+    "mri_cnn", 
+    "federated_pill",
+    "quantum_mri",
+    "fhe_dna",
+    "hybrid_pill",
 ] 
