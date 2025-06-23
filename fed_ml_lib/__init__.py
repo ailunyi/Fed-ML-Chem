@@ -43,7 +43,7 @@ from .models import (
     create_fhe_quantum_model
 )
 
-from .datasets import (
+from .data import (
     create_data_loaders,
     create_federated_data_loaders,
     get_dataset_info,
@@ -51,33 +51,39 @@ from .datasets import (
     get_transforms
 )
 
-from .client import (
-    FedMLClient,
-    MultimodalFedMLClient,
-    create_client
+from .federated.client import (
+    FlowerClient as FedMLClient,
+    MultimodalFlowerClient as MultimodalFedMLClient
 )
 
-from .server import (
-    FedCustom,
+from .federated.server import (
+    FedCustom
+)
+
+from .federated.utils import (
     weighted_average,
-    create_server_evaluate_fn,
-    get_on_fit_config_fn,
-    get_on_evaluate_config_fn
+    get_on_fit_config_fn
 )
 
-from .engine import (
-    run_central_training,
-    train_one_epoch,
-    evaluate_model
+from .core.training import (
+    train as run_central_training,
+    train_step as train_one_epoch
 )
 
-from .utils import (
-    get_device,
-    save_confusion_matrix,
-    save_roc_curve,
-    plot_training_curves,
-    count_parameters,
-    set_seed
+from .core.testing import (
+    test as evaluate_model
+)
+
+from .core.utils import (
+    choice_device as get_device,
+    get_parameters2 as get_model_parameters,
+    set_parameters as set_model_parameters
+)
+
+from .core.visualization import (
+    save_matrix as save_confusion_matrix,
+    save_roc as save_roc_curve,
+    plot_graph as plot_training_curves
 )
 
 from .config import (
@@ -116,14 +122,11 @@ __all__ = [
     # Client
     "FedMLClient",
     "MultimodalFedMLClient", 
-    "create_client",
     
     # Server
     "FedCustom",
     "weighted_average",
-    "create_server_evaluate_fn",
     "get_on_fit_config_fn",
-    "get_on_evaluate_config_fn",
     
     # Engine
     "run_central_training",
@@ -132,11 +135,11 @@ __all__ = [
     
     # Utils
     "get_device",
+    "get_model_parameters",
+    "set_model_parameters",
     "save_confusion_matrix",
     "save_roc_curve", 
     "plot_training_curves",
-    "count_parameters",
-    "set_seed",
     
     # Config
     "run_experiment",

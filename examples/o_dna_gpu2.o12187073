@@ -1,0 +1,19 @@
+/home/x-danoruo/miniconda3/envs/fedml-gpu/bin/python
+Python 3.10.18
+# Running on GPU
+## Loading dependencies
+## Running model
+  Running experiment: dna_centralized
+   Dataset: DNA
+   Model: mlp
+   Training: 25 epochs, lr=0.001
+Using device: cuda
+Epoch 0: Train Loss=1.9524, Train Acc=14.25%, Val Loss=1.9391, Val Acc=16.50%
+Epoch 5: Train Loss=1.9122, Train Acc=19.88%, Val Loss=1.9481, Val Acc=14.00%
+Epoch 10: Train Loss=1.7532, Train Acc=31.62%, Val Loss=2.0106, Val Acc=14.50%
+Epoch 15: Train Loss=1.5112, Train Acc=41.88%, Val Loss=2.1586, Val Acc=14.00%
+Epoch 20: Train Loss=1.2205, Train Acc=56.00%, Val Loss=2.5440, Val Acc=13.50%
+Test Results: Loss=2.8049, Accuracy=14.00%
+save graph in  results/
+Final test accuracy: 14.00%
+Training plots saved to results/ folder

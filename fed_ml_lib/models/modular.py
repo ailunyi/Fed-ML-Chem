@@ -16,6 +16,7 @@ class ModularConfig(ModelConfig):
     
     # Base architecture
     base_architecture: str = "cnn"  # cnn, mlp, gcn, pretrained_cnn
+    model_type: str = "modular"  # Required by base ModelConfig
     
     # Encryption configuration
     use_fhe: bool = False

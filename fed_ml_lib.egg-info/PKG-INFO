@@ -1,0 +1,123 @@
+Metadata-Version: 2.4
+Name: fed-ml-lib
+Version: 1.0.0
+Summary: A complete federated learning library for classical and quantum machine learning
+Author-email: Fed-ML-Chem Team <fed-ml-chem@example.com>
+License: MIT
+Project-URL: Homepage, https://github.com/fed-ml-chem/fed-ml-lib
+Project-URL: Documentation, https://fed-ml-lib.readthedocs.io
+Project-URL: Repository, https://github.com/fed-ml-chem/fed-ml-lib.git
+Project-URL: Issues, https://github.com/fed-ml-chem/fed-ml-lib/issues
+Keywords: federated learning,quantum machine learning,deep learning,pytorch,pennylane
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Scientific/Engineering :: Physics
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=1.24
+Requires-Dist: matplotlib>=3.5
+Requires-Dist: scikit-learn>=1.0
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: tqdm>=4.60
+Requires-Dist: flwr>=1.5.0
+Requires-Dist: pennylane>=0.28
+Provides-Extra: cpu
+Requires-Dist: torch==2.3.1; platform_system != "Windows" and extra == "cpu"
+Requires-Dist: torchvision==0.18.1; platform_system != "Windows" and extra == "cpu"
+Requires-Dist: torchaudio==2.3.1; platform_system != "Windows" and extra == "cpu"
+Requires-Dist: flwr[simulation]==1.5.0; extra == "cpu"
+Requires-Dist: pennylane>=0.28; extra == "cpu"
+Requires-Dist: numpy>=1.24; extra == "cpu"
+Requires-Dist: matplotlib>=3.5; extra == "cpu"
+Requires-Dist: pillow>=8.0; extra == "cpu"
+Requires-Dist: scikit-learn>=1.0; extra == "cpu"
+Requires-Dist: seaborn>=0.11; extra == "cpu"
+Requires-Dist: pandas>=1.3; extra == "cpu"
+Requires-Dist: pyyaml>=6.0; extra == "cpu"
+Requires-Dist: tqdm>=4.60; extra == "cpu"
+Requires-Dist: ray[default]>=2.3.0; extra == "cpu"
+Requires-Dist: kaggle; extra == "cpu"
+Requires-Dist: sentence_transformers; extra == "cpu"
+Requires-Dist: rdkit; extra == "cpu"
+Requires-Dist: torch-geometric; extra == "cpu"
+Requires-Dist: pyg_lib; extra == "cpu"
+Requires-Dist: torch_scatter; extra == "cpu"
+Requires-Dist: torch_sparse; extra == "cpu"
+Requires-Dist: torch_cluster; extra == "cpu"
+Requires-Dist: torch_spline_conv; extra == "cpu"
+Provides-Extra: gpu
+Requires-Dist: flwr==1.5.0; extra == "gpu"
+Requires-Dist: numpy==1.26.4; extra == "gpu"
+Requires-Dist: pennylane; extra == "gpu"
+Requires-Dist: ray>=2.3.0; extra == "gpu"
+Requires-Dist: matplotlib; extra == "gpu"
+Requires-Dist: pillow; extra == "gpu"
+Requires-Dist: scikit-learn; extra == "gpu"
+Requires-Dist: seaborn; extra == "gpu"
+Requires-Dist: pandas; extra == "gpu"
+Requires-Dist: pyyaml; extra == "gpu"
+Requires-Dist: kaggle; extra == "gpu"
+Requires-Dist: sentence_transformers; extra == "gpu"
+Requires-Dist: tqdm; extra == "gpu"
+Requires-Dist: rdkit; extra == "gpu"
+Requires-Dist: torch-geometric; extra == "gpu"
+Requires-Dist: torch==2.4.0+cu121; platform_system != "Windows" and extra == "gpu"
+Requires-Dist: torchvision==0.19.0+cu121; platform_system != "Windows" and extra == "gpu"
+Requires-Dist: torchaudio==2.4.0+cu121; platform_system != "Windows" and extra == "gpu"
+Requires-Dist: pyg_lib; extra == "gpu"
+Requires-Dist: torch_scatter; extra == "gpu"
+Requires-Dist: torch_sparse; extra == "gpu"
+Requires-Dist: torch_cluster; extra == "gpu"
+Requires-Dist: torch_spline_conv; extra == "gpu"
+Provides-Extra: quantum
+Requires-Dist: pennylane>=0.28; extra == "quantum"
+Requires-Dist: pennylane-lightning>=0.28; extra == "quantum"
+Requires-Dist: pennylane-qiskit>=0.28; extra == "quantum"
+Requires-Dist: qiskit>=0.45; extra == "quantum"
+Requires-Dist: qiskit-aer>=0.12; extra == "quantum"
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0; extra == "dev"
+Requires-Dist: black>=22.0; extra == "dev"
+Requires-Dist: isort>=5.10; extra == "dev"
+Requires-Dist: flake8>=5.0; extra == "dev"
+Requires-Dist: mypy>=1.0; extra == "dev"
+Requires-Dist: jupyter>=1.0; extra == "dev"
+Requires-Dist: notebook>=6.4; extra == "dev"
+Provides-Extra: all
+Requires-Dist: torch>=2.0; extra == "all"
+Requires-Dist: torchvision>=0.15; extra == "all"
+Requires-Dist: torchaudio>=2.0; extra == "all"
+Requires-Dist: flwr[simulation]>=1.5.0; extra == "all"
+Requires-Dist: pennylane>=0.28; extra == "all"
+Requires-Dist: pennylane-lightning>=0.28; extra == "all"
+Requires-Dist: numpy>=1.24; extra == "all"
+Requires-Dist: matplotlib>=3.5; extra == "all"
+Requires-Dist: pillow>=8.0; extra == "all"
+Requires-Dist: scikit-learn>=1.0; extra == "all"
+Requires-Dist: seaborn>=0.11; extra == "all"
+Requires-Dist: pandas>=1.3; extra == "all"
+Requires-Dist: pyyaml>=6.0; extra == "all"
+Requires-Dist: tqdm>=4.60; extra == "all"
+Requires-Dist: ray[default]>=2.3.0; extra == "all"
+Requires-Dist: kaggle; extra == "all"
+Requires-Dist: sentence_transformers; extra == "all"
+Requires-Dist: rdkit; extra == "all"
+Requires-Dist: torch-geometric; extra == "all"
+Requires-Dist: pyg_lib; extra == "all"
+Requires-Dist: torch_scatter; extra == "all"
+Requires-Dist: torch_sparse; extra == "all"
+Requires-Dist: torch_cluster; extra == "all"
+Requires-Dist: torch_spline_conv; extra == "all"
+Requires-Dist: qiskit>=0.45; extra == "all"
+Requires-Dist: qiskit-aer>=0.12; extra == "all"
+Dynamic: license-file

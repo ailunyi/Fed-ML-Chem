@@ -1,0 +1,2 @@
+[console_scripts]
+fed-ml-train = fed_ml_lib.cli:main

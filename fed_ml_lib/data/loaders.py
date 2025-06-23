@@ -9,8 +9,8 @@ from sklearn.utils import shuffle
 import pickle
 
 from fed_ml_lib.core.utils import *
-from fed_ml_lib.data.setup import *
-from fed_ml_lib.data.partitioning import *
+from .setup import *
+from .partitioning import *
 
 """
 This file contains the loaders for the different tasks. (copied from data_setup.py)
@@ -197,3 +197,96 @@ def load_datasets(num_clients: int, batch_size: int, resize: int, seed: int, num
 
     testloader = DataLoader(testset, batch_size=batch_size)
     return trainloaders, valloaders, testloader
+
+def create_data_loaders(dataset_name: str, data_path: str = "./data/", 
+                       batch_size: int = 32, resize: int = None, 
+                       seed: int = 42, num_workers: int = 0, 
+                       test_split: float = 0.2):
+    """
+    Create train and test data loaders for a given dataset.
+    This is a simplified wrapper around load_datasets for single-machine use.
+    """
+    # For single machine, we just need 1 client
+    trainloaders, valloaders, testloader = load_datasets(
+        num_clients=1, 
+        batch_size=batch_size, 
+        resize=resize, 
+        seed=seed, 
+        num_workers=num_workers,
+        splitter=int(test_split * 100),
+        dataset=dataset_name,
+        data_path=data_path
+    )
+    
+    return trainloaders[0], valloaders[0], testloader
+
+def create_federated_data_loaders(dataset_name: str, num_clients: int,
+                                 data_path: str = "./data/", 
+                                 batch_size: int = 32, resize: int = None,
+                                 seed: int = 42, num_workers: int = 0,
+                                 partition_type: str = "iid"):
+    """
+    Create federated data loaders for multiple clients.
+    """
+    return load_datasets(
+        num_clients=num_clients,
+        batch_size=batch_size,
+        resize=resize,
+        seed=seed,
+        num_workers=num_workers,
+        dataset=dataset_name,
+        data_path=data_path
+    )
+
+def get_dataset_info(dataset_name: str, data_path: str = "./data/"):
+    """
+    Get information about a dataset.
+    """
+    info = {
+        'name': dataset_name,
+        'path': data_path,
+        'normalize_dict': NORMALIZE_DICT.get(dataset_name, None)
+    }
+    
+    if dataset_name == "DNA":
+        info['num_classes'] = 7
+        info['input_shape'] = (None,)  # Variable length sequences
+        info['description'] = "DNA sequence classification dataset"
+    elif dataset_name == "MMF":
+        info['num_classes'] = 8
+        info['input_shape'] = (None,)  # Variable features
+        info['description'] = "Multimodal Audio-Vision emotion recognition dataset"
+    elif dataset_name == "hiv":
+        info['num_classes'] = 2
+        info['input_shape'] = (None,)  # Graph data
+        info['description'] = "HIV molecule classification dataset"
+    elif dataset_name in ["PILL", "MRI", "BREAST", "HISTO", "PCOS", "Wafer"]:
+        info['num_classes'] = None  # Will be determined from dataset
+        info['input_shape'] = (3, 224, 224)  # Default image size
+        info['description'] = f"{dataset_name} image classification dataset"
+    else:
+        info['num_classes'] = None
+        info['input_shape'] = None
+        info['description'] = f"Unknown dataset: {dataset_name}"
+    
+    return info
+
+def get_transforms(dataset_name: str, resize: int = None):
+    """
+    Get transforms for a given dataset.
+    """
+    if dataset_name in ["MMF", "DNA", "hiv"]:
+        return None  # These datasets don't use image transforms
+    
+    normalize_params = NORMALIZE_DICT.get(dataset_name, NORMALIZE_DICT['imagenet'])
+    
+    transform_list = []
+    if resize is not None:
+        transform_list.append(transforms.Resize((resize, resize)))
+    
+    transform_list.extend([
+        transforms.ToTensor(),
+        transforms.Normalize(**normalize_params)
+    ])
+    
+    return transforms.Compose(transform_list)

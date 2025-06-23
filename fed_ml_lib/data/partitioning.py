@@ -14,6 +14,7 @@ from fed_ml_lib.core.utils import *
 This file contains the partitioning functions for the different tasks. (copied from data_setup.py)
 """
 
+
 def preprocess_and_split_data(au_mfcc_path):
     # Load the Audio+Vision(MP4 Video input divided into Audio and Images) data
     with open(au_mfcc_path, 'rb') as f:
@@ -69,6 +70,89 @@ def preprocess_and_split_data(au_mfcc_path):
     testset = TensorDataset(test_data_tensor, test_labels_tensor)
 
     return trainset, devset, testset
+
+def partition_non_iid(dataset, num_clients: int, seed: int = 42, 
+                     classes_per_client: int = 2) -> List[List[int]]:
+    """
+    Partition dataset in a non-IID manner by limiting classes per client.
+    
+    Args:
+        dataset: PyTorch dataset
+        num_clients: Number of clients
+        seed: Random seed for reproducibility
+        classes_per_client: Number of classes each client should have
+        
+    Returns:
+        List of lists containing indices for each client
+    """
+    np.random.seed(seed)
+    
+    # Get labels
+    if hasattr(dataset, 'targets'):
+        labels = np.array(dataset.targets)
+    elif hasattr(dataset, 'labels'):
+        labels = np.array(dataset.labels)
+    else:
+        # Try to extract labels from dataset
+        labels = []
+        for i in range(len(dataset)):
+            _, label = dataset[i]
+            labels.append(label)
+        labels = np.array(labels)
+    
+    num_classes = len(np.unique(labels))
+    
+    # Group indices by class
+    class_indices = {}
+    for class_id in range(num_classes):
+        class_indices[class_id] = np.where(labels == class_id)[0].tolist()
+        np.random.shuffle(class_indices[class_id])
+    
+    # Assign classes to clients
+    client_indices = [[] for _ in range(num_clients)]
+    
+    # Ensure each client gets exactly classes_per_client classes
+    for client_id in range(num_clients):
+        # Select classes for this client
+        available_classes = list(range(num_classes))
+        selected_classes = np.random.choice(available_classes, 
+                                          min(classes_per_client, len(available_classes)), 
+                                          replace=False)
+        
+        # Distribute data from selected classes
+        for class_id in selected_classes:
+            # Calculate how much data this client gets from this class
+            class_data = class_indices[class_id]
+            samples_per_client = len(class_data) // (num_clients // classes_per_client + 1)
+            
+            # Get indices for this client
+            start_idx = 0
+            end_idx = min(samples_per_client, len(class_data))
+            
+            client_indices[client_id].extend(class_data[start_idx:end_idx])
+            # Remove used indices
+            class_indices[class_id] = class_data[end_idx:]
+    
+    # Distribute remaining data
+    for class_id in range(num_classes):
+        remaining_data = class_indices[class_id]
+        if remaining_data:
+            # Distribute remaining data evenly among clients
+            samples_per_client = len(remaining_data) // num_clients
+            for client_id in range(num_clients):
+                start_idx = client_id * samples_per_client
+                if client_id == num_clients - 1:
+                    end_idx = len(remaining_data)
+                else:
+                    end_idx = (client_id + 1) * samples_per_client
+                
+                client_indices[client_id].extend(remaining_data[start_idx:end_idx])
+    
+    # Shuffle each client's data
+    for client_id in range(num_clients):
+        np.random.shuffle(client_indices[client_id])
+    
+    return client_indices
 
 def split_data_client(dataset, num_clients, seed):
     """
