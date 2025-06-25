@@ -7,8 +7,8 @@
 #SBATCH --mem=128G
 #SBATCH --time=2:00:00        # Total run time limit (hh:mm:ss)
 #SBATCH -J fl_job               # Job name
-#SBATCH -o o_dna_gpu2.o%j        # Name of stdout output file
-#SBATCH -e e_dna_gpu2.e%j          # Name of stderr error file
+#SBATCH -o output_logs/run.o%j        # Name of stdout output file
+#SBATCH -e error_logs/run.e%j          # Name of stderr error file
 #SBATCH -p gpu               # Queue (partition) name
 #SBATCH --mail-user=yi161@purdue.edu
 #SBATCH --mail-type=all       # Send email to above address at begin and end of
@@ -43,4 +43,4 @@ echo "## Running model"
 
 # Launch GPU code
 
-python centralized_dna_example.py
+python quantum_federated_pill_example_fixed.py

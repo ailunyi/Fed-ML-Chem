@@ -5,6 +5,7 @@ from typing import Dict, List, Tuple, Optional, Union
 import numpy as np
 import torch.nn.functional as F
 from sklearn.preprocessing import OneHotEncoder
+from .testing import test, test_graph, test_multimodal, test_multimodal_health
 
 """
 This file contains the training functions for the different tasks. (copied from engine.py)
@@ -300,7 +301,10 @@ def train(model: torch.nn.Module, train_dataloader: torch.utils.data.DataLoader,
     # Loop through training and testing steps for a number of epochs
     for epoch in tqdm(range(epochs), colour="BLUE"):
         # Select functions based on the task
-        if task == "Multimodal" and isinstance(loss_fn, Tuple):
+        if task == "multimodal_health" and isinstance(loss_fn, Tuple):
+            train_step_fn = train_step_multimodal_health
+            test_fn = test_multimodal_health
+        elif task == "Multimodal" and isinstance(loss_fn, Tuple):
             train_step_fn = train_step_multimodal_health
             test_fn = test_multimodal_health
         elif task == "Multimodal":

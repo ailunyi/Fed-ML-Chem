@@ -213,76 +213,77 @@ def test_multimodal(model: torch.nn.Module, dataloader: torch.utils.data.DataLoa
 
 def test_multimodal_health(model: torch.nn.Module, dataloader: torch.utils.data.DataLoader, loss_fn: Union[torch.nn.Module, Tuple],
          device: torch.device):
-    """Tests a PyTorch model for a single epoch.
-
-    Turns a target PyTorch model to "eval" mode and then performs
-    a forward pass on a testing dataset.
+    """Tests a PyTorch model for multimodal health data.
 
     Args:
     model: A PyTorch model to be tested.
     dataloader: A DataLoader instance for the model to be tested on.
-    loss_fn: A PyTorch loss function to calculate loss on the test data.
+    loss_fn: A tuple of loss functions (one for each modality).
     device: A target device to compute on (e.g. "cuda" or "cpu").
 
     Returns:
-    A tuple of testing loss and testing accuracy metrics.
-    In the form (test_loss, test_accuracy). For example:
-
-    (0.0223, 0.8985)
+    A tuple containing:
+    - test_loss: Average test loss across both modalities
+    - test_acc: Average test accuracy across both modalities
+    - y_pred: List of predicted classes
+    - y_true: List of true classes
+    - y_proba: List of class probabilities
     """
     # Put model in eval mode
     model.eval()
 
-    # Setup test loss and test accuracy values
-    test_loss_mri, test_loss_dna, test_acc_mri, test_acc_dna = 0, 0, 0, 0
-    y_pred_mri, y_pred_dna = [], []
-    y_true_mri, y_true_dna = [], []
-    y_proba_mri, y_proba_dna = [], []
+    # Setup test loss and test accuracy values for both modalities
+    test_loss_1, test_loss_2 = 0, 0
+    test_acc_1, test_acc_2 = 0, 0
+    y_pred_1, y_pred_2 = [], []
+    y_true_1, y_true_2 = [], []
+    y_proba_1, y_proba_2 = [], []
+    softmax = nn.Softmax(dim=1)
 
     # Turn on inference context manager
     with torch.inference_mode():
-        """
-        torch.inference_mode is analogous to torch.no_grad : 
-        gets better performance by disabling view tracking and version counter bumps
-        """
         # Loop through DataLoader batches
-        for (mri_data, dna_data), (mri_labels, dna_labels) in dataloader:
+        for (data_1, data_2), (labels_1, labels_2) in dataloader:
             # Send data to target device
-            mri_data, dna_data, mri_labels, dna_labels = [x.to(device) for x in [mri_data, dna_data, mri_labels, dna_labels]]
+            data_1, data_2 = data_1.to(device), data_2.to(device)
+            labels_1, labels_2 = labels_1.to(device), labels_2.to(device)
 
             # 1. Forward pass
-            mri_output, dna_output = model(mri_data, dna_data)
+            output_1, output_2 = model(data_1, data_2)
 
             # 2. Calculate and accumulate probas
-            y_proba_mri.extend(mri_output.detach().cpu().numpy())
-            y_proba_dna.extend(dna_output.detach().cpu().numpy())
+            probas_1, probas_2 = softmax(output_1), softmax(output_2)
+            y_proba_1.extend(probas_1.detach().cpu().numpy())
+            y_proba_2.extend(probas_2.detach().cpu().numpy())
 
             # 3. Calculate and accumulate loss
-            criterion_mri, criterion_dna = loss_fn
-            loss_mri = criterion_mri(mri_output, mri_labels)
-            loss_dna = criterion_dna(dna_output, dna_labels)                       
-            test_loss_mri += loss_mri.item()
-            test_loss_dna += loss_dna.item()
+            loss_1 = loss_fn[0](output_1, labels_1)
+            loss_2 = loss_fn[1](output_2, labels_2)
+            test_loss_1 += loss_1.item()
+            test_loss_2 += loss_2.item()
 
             # 4. Calculate and accumulate accuracy
-            mri_labels = mri_labels.data.cpu().numpy()
-            dna_labels = dna_labels.data.cpu().numpy()
-            y_true_mri.extend(mri_labels)  # Save Truth
-            y_true_dna.extend(dna_labels)  # Save Truth
-            preds_mri = np.argmax(mri_output.detach().cpu().numpy(), axis=1)
-            preds_dna = np.argmax(dna_output.detach().cpu().numpy(), axis=1)
-            y_pred_mri.extend(preds_mri)  # Save Prediction
-            y_pred_dna.extend(preds_dna)  # Save Prediction
-            acc_mri = (preds_mri == mri_labels).mean()
-            acc_dna = (preds_dna == dna_labels).mean()
-            test_acc_mri += acc_mri
-            test_acc_dna += acc_dna
+            labels_1 = labels_1.data.cpu().numpy()
+            labels_2 = labels_2.data.cpu().numpy()
+            y_true_1.extend(labels_1)
+            y_true_2.extend(labels_2)
+            preds_1 = np.argmax(output_1.detach().cpu().numpy(), axis=1)
+            preds_2 = np.argmax(output_2.detach().cpu().numpy(), axis=1)
+            y_pred_1.extend(preds_1)
+            y_pred_2.extend(preds_2)
+            acc_1 = (preds_1 == labels_1).mean()
+            acc_2 = (preds_2 == labels_2).mean()
+            test_acc_1 += acc_1
+            test_acc_2 += acc_2
 
-    y_proba_mri = np.array(y_proba_mri)
-    y_proba_dna = np.array(y_proba_dna)    
     # Adjust metrics to get average loss and accuracy per batch
-    test_loss_mri = test_loss_mri / len(dataloader)
-    test_acc_mri = test_acc_mri / len(dataloader) * 100
-    test_loss_dna = test_loss_dna / len(dataloader)
-    test_acc_dna = test_acc_dna / len(dataloader) * 100
-    return (test_loss_mri, test_loss_dna), (test_acc_mri, test_acc_dna), (y_pred_mri, y_pred_dna), (y_true_mri, y_true_dna), (y_proba_mri, y_proba_dna)
+    test_loss_1 = test_loss_1 / len(dataloader)
+    test_loss_2 = test_loss_2 / len(dataloader)
+    test_acc_1 = test_acc_1 / len(dataloader) * 100
+    test_acc_2 = test_acc_2 / len(dataloader) * 100
+
+    # Convert probability lists to numpy arrays
+    y_proba_1 = np.array(y_proba_1)
+    y_proba_2 = np.array(y_proba_2)
+
+    return (test_loss_1, test_loss_2), (test_acc_1, test_acc_2), (y_pred_1, y_pred_2), (y_true_1, y_true_2), (y_proba_1, y_proba_2)

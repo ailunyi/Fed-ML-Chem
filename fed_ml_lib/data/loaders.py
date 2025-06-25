@@ -30,8 +30,10 @@ NORMALIZE_DICT = {
     'MRI': dict(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
     'PCOS': dict(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
     'MMF': dict(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+    'DNA+MRI' : dict(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+    'kidney_ct': dict(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),  # Medical imaging normalization
     'HIV': None,  
-    'DNA': None,  
+    'DNA': None
 }
 
 class MultimodalDataset(Dataset):
@@ -166,6 +168,9 @@ def load_datasets(num_clients: int, batch_size: int, resize: int, seed: int, num
         print("The training set is created for the classes: ")
         print("('glioma', 'meningioma', 'notumor', 'pituitary')")
         print("('0', '1', '2', '3', '4', '5', '6')")
+    elif dataset == "kidney_ct":
+        print("The training set is created for the classes: ('Cyst', 'Normal', 'Stone', 'Tumor')")
+        print("Binary classification: Normal (0) vs Malignant (1) - Cyst/Stone/Tumor")
     elif dataset == "hiv":
         print("The training set is created for the classes: ('confirmed inactive (CI)', 'confirmed active (CA)/confirmed moderately active (CM)')")
     else:

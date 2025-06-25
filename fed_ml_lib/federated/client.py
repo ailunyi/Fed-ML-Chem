@@ -8,6 +8,9 @@ from flwr.common import NDArrays, Scalar
 import numpy as np
 
 from fed_ml_lib.federated.utils import *
+from fed_ml_lib.core.training import train
+from fed_ml_lib.core.testing import test, test_multimodal_health
+from fed_ml_lib.core.visualization import save_matrix, save_roc, save_graphs, save_graphs_multimodal
 
 class FlowerClient(fl.client.NumPyClient):
     def __init__(self, cid, net, trainloader, valloader, device, batch_size, save_results, matrix_path, roc_path,
@@ -40,8 +43,8 @@ class FlowerClient(fl.client.NumPyClient):
         criterion = torch.nn.CrossEntropyLoss()
         optimizer = torch.optim.Adam(self.net.parameters(), lr=lr)
 
-        results = engine.train(self.net, self.trainloader, self.valloader, optimizer=optimizer, loss_fn=criterion,
-                               epochs=local_epochs, device=self.device)
+        results = train(self.net, self.trainloader, self.valloader, optimizer=optimizer, loss_fn=criterion,
+                        epochs=local_epochs, device=self.device)
 
         if self.save_results:
             save_graphs(self.save_results, local_epochs, results, f"_Client {self.cid}")
@@ -52,8 +55,8 @@ class FlowerClient(fl.client.NumPyClient):
         print(f"[Client {self.cid}] evaluate, config: {config}")
         set_parameters(self.net, parameters)
 
-        loss, accuracy, y_pred, y_true, y_proba = engine.test(self.net, self.valloader,
-                                                              loss_fn=torch.nn.CrossEntropyLoss(), device=self.device)
+        loss, accuracy, y_pred, y_true, y_proba = test(self.net, self.valloader,
+                                                        loss_fn=torch.nn.CrossEntropyLoss(), device=self.device)
 
         if self.save_results:
             os.makedirs(self.save_results, exist_ok=True)
@@ -96,8 +99,8 @@ class MultimodalFlowerClient(fl.client.NumPyClient):
         criterion_dna = torch.nn.CrossEntropyLoss()
         optimizer = torch.optim.Adam(self.net.parameters(), lr=lr)
 
-        results = engine.train(self.net, self.trainloader, self.valloader, optimizer=optimizer, loss_fn=(criterion_mri, criterion_dna),
-                               epochs=local_epochs, device=self.device, task="Multimodal")
+        results = train(self.net, self.trainloader, self.valloader, optimizer=optimizer, loss_fn=(criterion_mri, criterion_dna),
+                        epochs=local_epochs, device=self.device, task="Multimodal")
 
         if self.save_results:
             save_graphs_multimodal(self.save_results, local_epochs, results, f"_Client {self.cid}")
@@ -108,8 +111,8 @@ class MultimodalFlowerClient(fl.client.NumPyClient):
         print(f"[Client {self.cid}] evaluate, config: {config}")
         set_parameters(self.net, parameters)
 
-        loss, accuracy, y_pred, y_true, y_proba = engine.test_multimodal_health(self.net, self.valloader,
-                                                              loss_fn=(torch.nn.CrossEntropyLoss(),torch.nn.CrossEntropyLoss()), device=self.device)
+        loss, accuracy, y_pred, y_true, y_proba = test_multimodal_health(self.net, self.valloader,
+                                                                      loss_fn=(torch.nn.CrossEntropyLoss(),torch.nn.CrossEntropyLoss()), device=self.device)
 
         loss_mri, loss_dna = loss
         accuracy_mri, accuracy_dna = accuracy

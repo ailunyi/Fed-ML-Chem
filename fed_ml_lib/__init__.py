@@ -35,12 +35,7 @@ quantum_model = create_quantum_model('cnn', input_shape=(3, 224, 224),
 
 # Core components
 from .models import (
-    create_model,
-    create_modular_model,
-    create_classical_model,
-    create_fhe_model,
-    create_quantum_model,
-    create_fhe_quantum_model
+    create_model
 )
 
 from .data import (
@@ -106,11 +101,6 @@ __description__ = "A complete federated learning library for classical and quant
 __all__ = [
     # Models
     "create_model",
-    "create_modular_model",
-    "create_classical_model",
-    "create_fhe_model",
-    "create_quantum_model",
-    "create_fhe_quantum_model",
     
     # Datasets
     "create_data_loaders",

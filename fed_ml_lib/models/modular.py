@@ -16,7 +16,17 @@ class ModularConfig(ModelConfig):
     
     # Base architecture
     base_architecture: str = "cnn"  # cnn, mlp, gcn, pretrained_cnn
-    model_type: str = "modular"  # Required by base ModelConfig
+    
+    # Required by ModelConfig
+    input_shape: Tuple[int, ...] = (3, 224, 224)  # Default for vision tasks
+    num_classes: int = 2  # Default binary classification
+    hidden_dims: Optional[List[int]] = None
+    conv_channels: Optional[List[int]] = None
+    dropout_rate: float = 0.0
+    activation: str = "relu"
+    domain: str = "vision"
+    use_pretrained: bool = False
+    freeze_layers: int = 0
     
     # Encryption configuration
     use_fhe: bool = False
@@ -170,7 +180,7 @@ class ModularModel(BaseModel):
         
         if backbone_name == 'vgg16':
             backbone = models.vgg16(weights='IMAGENET1K_V1')
-            features = backbone.features
+            features = backbone.features[:-1]  # Remove last maxpool to match legacy
             feature_dim = 512
         elif backbone_name == 'resnet18':
             backbone = models.resnet18(weights='IMAGENET1K_V1')
@@ -187,13 +197,30 @@ class ModularModel(BaseModel):
         
         self.features = self._wrap_with_enhancements(features, 'features')
         
-        # Classifier
-        classifier = nn.Sequential(
-            nn.AdaptiveAvgPool2d((1, 1)),
-            nn.Flatten(),
-            nn.Dropout(self.config.dropout_rate),
-            nn.Linear(feature_dim, self.config.num_classes)
-        )
+        # Build classification head
+        if hasattr(self.config, 'classification_head'):
+            # Custom classification head from config
+            classifier_layers = []
+            for layer_type, layer_params in self.config.classification_head:
+                if layer_type == 'MaxPool2d':
+                    classifier_layers.append(nn.MaxPool2d(**layer_params))
+                elif layer_type == 'AvgPool2d':
+                    classifier_layers.append(nn.AvgPool2d(**layer_params))
+                elif layer_type == 'Flatten':
+                    classifier_layers.append(nn.Flatten())
+                elif layer_type == 'Linear':
+                    classifier_layers.append(nn.Linear(**layer_params))
+                elif layer_type == 'Dropout':
+                    classifier_layers.append(nn.Dropout(**layer_params))
+            classifier = nn.Sequential(*classifier_layers)
+        else:
+            # Default classification head
+            classifier = nn.Sequential(
+                nn.AdaptiveAvgPool2d((1, 1)),
+                nn.Flatten(),
+                nn.Dropout(self.config.dropout_rate),
+                nn.Linear(feature_dim, self.config.num_classes)
+            )
         
         self.classifier = self._wrap_with_enhancements(classifier, 'classifier')
     
@@ -368,11 +395,19 @@ class SquareActivation(nn.Module):
         return x * x
 
 
-# Factory function for modular models
-def create_modular_model(
+def create_model(
     base_architecture: str,
+    input_shape: Tuple[int, ...],
+    num_classes: int,
     use_fhe: bool = False,
     use_quantum: bool = False,
+    hidden_dims: Optional[List[int]] = None,
+    conv_channels: Optional[List[int]] = None,
+    dropout_rate: float = 0.0,
+    activation: str = "relu",
+    domain: str = "vision",
+    use_pretrained: bool = False,
+    freeze_layers: int = 0,
     **kwargs
 ) -> ModularModel:
     """
@@ -380,49 +415,37 @@ def create_modular_model(
     
     Args:
         base_architecture: 'cnn', 'mlp', 'gcn', 'pretrained_cnn'
+        input_shape: Shape of input data (e.g., (3, 224, 224) for RGB images)
+        num_classes: Number of output classes
         use_fhe: Whether to add FHE encryption
         use_quantum: Whether to add quantum processing
+        hidden_dims: List of hidden layer dimensions
+        conv_channels: List of convolutional channel sizes
+        dropout_rate: Dropout probability
+        activation: Activation function to use
+        domain: Domain of the task (vision, sequence, graph, medical, molecular)
+        use_pretrained: Whether to use pretrained weights
+        freeze_layers: Number of layers to freeze
         **kwargs: Additional configuration parameters
     
     Returns:
         ModularModel instance
-    
-    Examples:
-        # Pure classical CNN
-        model = create_modular_model('cnn')
-        
-        # CNN with FHE encryption
-        model = create_modular_model('cnn', use_fhe=True, fhe_layers=['classifier'])
-        
-        # CNN with quantum enhancement
-        model = create_modular_model('cnn', use_quantum=True, quantum_layers=['features'])
-        
-        # CNN with both FHE and quantum
-        model = create_modular_model('cnn', use_fhe=True, use_quantum=True)
     """
     config = ModularConfig(
         base_architecture=base_architecture,
+        input_shape=input_shape,
+        num_classes=num_classes,
         use_fhe=use_fhe,
         use_quantum=use_quantum,
+        hidden_dims=hidden_dims,
+        conv_channels=conv_channels,
+        dropout_rate=dropout_rate,
+        activation=activation,
+        domain=domain,
+        use_pretrained=use_pretrained,
+        freeze_layers=freeze_layers,
         **kwargs
     )
     
     return ModularModel(config)
 
-
-# Convenience functions for common combinations
-def create_classical_model(architecture: str, **kwargs):
-    """Create pure classical model."""
-    return create_modular_model(architecture, use_fhe=False, use_quantum=False, **kwargs)
-
-def create_fhe_model(architecture: str, **kwargs):
-    """Create FHE-encrypted model."""
-    return create_modular_model(architecture, use_fhe=True, use_quantum=False, **kwargs)
-
-def create_quantum_model(architecture: str, **kwargs):
-    """Create quantum-enhanced model."""
-    return create_modular_model(architecture, use_fhe=False, use_quantum=True, **kwargs)
-
-def create_fhe_quantum_model(architecture: str, **kwargs):
-    """Create FHE + Quantum model."""
-    return create_modular_model(architecture, use_fhe=True, use_quantum=True, **kwargs)

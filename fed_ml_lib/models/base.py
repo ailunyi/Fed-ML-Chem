@@ -14,7 +14,6 @@ class ModelConfig:
     """Configuration for model architectures."""
     input_shape: Tuple[int, ...]
     num_classes: int
-    model_type: str
     
     # Architecture parameters
     hidden_dims: Optional[List[int]] = None

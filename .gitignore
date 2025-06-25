@@ -6,3 +6,5 @@ examples/results
 .DS_Store
 .conda/
 venv/
+examples/error_logs/
+examples/output_logs/

@@ -102,7 +102,7 @@ def run_experiment(
     
     # Dataset info
     dataset_info = {
-        'PILL': {'input_shape': (3, 224, 224), 'num_classes': 10},
+        'PILL': {'input_shape': (3, 224, 224), 'num_classes': 2},  # Binary classification: bad/good pills
         'DNA': {'input_shape': (180,), 'num_classes': 7},
         'MRI': {'input_shape': (3, 224, 224), 'num_classes': 4},
         'HIV': {'input_shape': (9,), 'num_classes': 2},
