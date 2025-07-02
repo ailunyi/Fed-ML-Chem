@@ -1,8 +1,6 @@
-from typing import Dict, Any, Optional, List, Callable
-import inspect
-from pathlib import Path
+from typing import Dict, Any, Optional, List
 
-def run_experiment(
+def create_config(
     name: str,
     dataset: str,
     model: str = "cnn",
@@ -48,7 +46,7 @@ def run_experiment(
     **kwargs
 ) -> Dict[str, Any]:
     """
-    Run an experiment with the given configuration.
+    Create an experiment configuration dictionary.
     
     This is the main entry point - just call this function with your parameters!
     
@@ -182,7 +180,7 @@ def run_experiment(
     }
     
     # Print configuration
-    print(f"  Running experiment: {name}")
+    print(f"  Creating config: {name}")
     print(f"   Dataset: {dataset}")
     print(f"   Model: {model}")
     
@@ -197,201 +195,8 @@ def run_experiment(
     
     print(f"   Training: {epochs} epochs, lr={learning_rate}")
     
-    # Here you would call your actual training code
-    # For now, just return the config
+    # Return the configuration dictionary
     return config
 
-# Convenience functions for common scenarios
-def pill_cnn(name: str, **kwargs):
-    """Quick PILL CNN experiment."""
-    return run_experiment(name, "PILL", "cnn", **kwargs)
 
-def dna_mlp(name: str, **kwargs):
-    """Quick DNA MLP experiment."""
-    return run_experiment(name, "DNA", "mlp", **kwargs)
 
-def mri_cnn(name: str, **kwargs):
-    """Quick MRI CNN experiment."""
-    return run_experiment(name, "MRI", "cnn", **kwargs)
-
-def federated_pill(name: str, **kwargs):
-    """Quick federated PILL experiment."""
-    return run_experiment(name, "PILL", "cnn", federated=True, **kwargs)
-
-def quantum_mri(name: str, **kwargs):
-    """Quick quantum MRI experiment."""
-    return run_experiment(name, "MRI", "cnn", use_quantum=True, **kwargs)
-
-def fhe_dna(name: str, **kwargs):
-    """Quick FHE DNA experiment."""
-    return run_experiment(name, "DNA", "mlp", use_fhe=True, **kwargs)
-
-def hybrid_pill(name: str, **kwargs):
-    """Quick hybrid FHE+Quantum PILL experiment."""
-    return run_experiment(name, "PILL", "cnn", use_fhe=True, use_quantum=True, **kwargs)
-
-# Configuration templates as Python functions
-def basic_cnn_config(name: str, dataset: str, **kwargs):
-    """Basic CNN configuration template."""
-    defaults = {
-        'model': 'cnn',
-        'conv_channels': [32, 64, 128],
-        'hidden_dims': [256],
-        'dropout_rate': 0.2,
-        'epochs': 25,
-        'learning_rate': 0.001,
-        'batch_size': 32
-    }
-    defaults.update(kwargs)
-    return run_experiment(name, dataset, **defaults)
-
-def federated_config(name: str, dataset: str, **kwargs):
-    """Federated learning configuration template."""
-    defaults = {
-        'model': 'cnn',
-        'conv_channels': [16, 32, 64],
-        'epochs': 10,
-        'learning_rate': 0.01,
-        'batch_size': 16,
-        'federated': True,
-        'num_clients': 10,
-        'num_rounds': 20,
-        'local_epochs': 5
-    }
-    defaults.update(kwargs)
-    return run_experiment(name, dataset, **defaults)
-
-def quantum_config(name: str, dataset: str, **kwargs):
-    """Quantum ML configuration template."""
-    defaults = {
-        'model': 'cnn',
-        'conv_channels': [32, 64],
-        'use_quantum': True,
-        'n_qubits': 4,
-        'quantum_layers': ['classifier'],
-        'epochs': 20,
-        'learning_rate': 0.001
-    }
-    defaults.update(kwargs)
-    return run_experiment(name, dataset, **defaults)
-
-def fhe_config(name: str, dataset: str, **kwargs):
-    """FHE configuration template."""
-    defaults = {
-        'model': 'cnn',
-        'conv_channels': [16, 32],
-        'use_fhe': True,
-        'fhe_scheme': 'CKKS',
-        'fhe_layers': ['classifier'],
-        'epochs': 15,
-        'learning_rate': 0.0005
-    }
-    defaults.update(kwargs)
-    return run_experiment(name, dataset, **defaults)
-
-def hybrid_config(name: str, dataset: str, **kwargs):
-    """Hybrid FHE+Quantum configuration template."""
-    defaults = {
-        'model': 'cnn',
-        'conv_channels': [32, 64],
-        'use_fhe': True,
-        'fhe_scheme': 'CKKS',
-        'fhe_layers': ['classifier'],
-        'use_quantum': True,
-        'n_qubits': 4,
-        'quantum_layers': ['features'],
-        'epochs': 20,
-        'learning_rate': 0.001
-    }
-    defaults.update(kwargs)
-    return run_experiment(name, dataset, **defaults)
-
-# Batch experiment runner
-def run_experiments(experiments: List[Callable], **common_kwargs):
-    """
-    Run multiple experiments with common parameters.
-    
-    Args:
-        experiments: List of experiment functions to run
-        **common_kwargs: Common parameters for all experiments
-    
-    Example:
-        run_experiments([
-            lambda: pill_cnn("exp1", epochs=50),
-            lambda: dna_mlp("exp2", epochs=40),
-            lambda: quantum_mri("exp3", n_qubits=6)
-        ], debug=True, gpu=False)
-    """
-    results = []
-    
-    for i, experiment_func in enumerate(experiments):
-        print(f"\n--- Running experiment {i+1}/{len(experiments)} ---")
-        
-        # Get the experiment function signature
-        if hasattr(experiment_func, '__call__'):
-            try:
-                result = experiment_func()
-                # Apply common kwargs
-                result.update(common_kwargs)
-                results.append(result)
-            except Exception as e:
-                print(f"Experiment {i+1} failed: {e}")
-                results.append(None)
-    
-    return results
-
-# Parameter sweep helper
-def parameter_sweep(base_func: Callable, param_name: str, values: List, **base_kwargs):
-    """
-    Run parameter sweep over a list of values.
-    
-    Args:
-        base_func: Base experiment function
-        param_name: Parameter name to sweep
-        values: List of values to try
-        **base_kwargs: Base parameters
-    
-    Example:
-        parameter_sweep(
-            lambda name, **kwargs: pill_cnn(name, **kwargs),
-            'learning_rate',
-            [0.001, 0.01, 0.1],
-            epochs=20
-        )
-    """
-    results = []
-    
-    for i, value in enumerate(values):
-        experiment_name = f"sweep_{param_name}_{i:03d}"
-        print(f"\n--- Sweep {i+1}/{len(values)}: {param_name}={value} ---")
-        
-        kwargs = base_kwargs.copy()
-        kwargs[param_name] = value
-        
-        try:
-            result = base_func(experiment_name, **kwargs)
-            results.append(result)
-        except Exception as e:
-            print(f"Sweep {i+1} failed: {e}")
-            results.append(None)
-    
-    return results
-
-    
-# Custom experiment with lots of parameters
-# run_experiment(
-#     name="custom_experiment",
-#     dataset="DNA",
-#     model="mlp",
-#     hidden_dims=[512, 256, 128, 64],
-#     dropout_rate=0.3,
-#     epochs=100,
-#     learning_rate=0.0005,
-#     batch_size=16,
-#     use_quantum=True,
-#     n_qubits=10,
-#     quantum_layers=['features'],
-#     federated=True,
-#     num_clients=20,
-#     debug=True
-# ) 

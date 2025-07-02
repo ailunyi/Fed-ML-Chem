@@ -216,3 +216,100 @@ def plot_graph(list_xplot, list_yplot, x_label, y_label, curve_labels, title, pa
     if path:
         plt.savefig(path)
     plt.close()
+
+
+# New convenience function to save all visualizations at once
+def save_all_results(
+    train_true,
+    train_pred, 
+    train_proba,
+    test_true,
+    test_pred,
+    test_proba,
+    training_history,
+    classes,
+    results_path,
+    config,
+    file_suffix=""
+):
+    """
+    Save all standard visualization outputs with a single function call.
+    
+    This convenience function eliminates the repetitive pattern of calling
+    save_matrix, save_roc, and save_graphs separately across all examples.
+    
+    Args:
+        train_true: True labels for training data
+        train_pred: Predicted labels for training data  
+        train_proba: Predicted probabilities for training data
+        test_true: True labels for test data
+        test_pred: Predicted labels for test data
+        test_proba: Predicted probabilities for test data
+        training_history: Training history dictionary with train_acc, val_acc, train_loss, val_loss
+        classes: List of class names for confusion matrix labels
+        results_path: Base path to save all results
+        config: Configuration dictionary containing epochs and other settings
+        file_suffix: Optional suffix to append to filenames (e.g., "_pill", "_dna")
+        
+    Example:
+        # Before (37 lines of repetitive code):
+        save_matrix(train_true, train_pred, classes, f"{results_path}/confusion_matrix_train.png")
+        save_matrix(test_true, test_pred, classes, f"{results_path}/confusion_matrix_test.png") 
+        save_roc(train_true, train_proba, f"{results_path}/roc_train.png", len(classes))
+        save_roc(test_true, test_proba, f"{results_path}/roc_test.png", len(classes))
+        save_graphs(f"{results_path}/", config['epochs'], training_history, "")
+        
+        # After (1 line):
+        save_all_results(train_true, train_pred, train_proba, test_true, test_pred, 
+                        test_proba, training_history, classes, results_path, config)
+    """
+    # Ensure results directory exists
+    os.makedirs(results_path, exist_ok=True)
+    
+    # Save confusion matrices
+    save_matrix(
+        y_true=train_true,
+        y_pred=train_pred,
+        classes=classes,
+        path=os.path.join(results_path, f"confusion_matrix_train{file_suffix}.png")
+    )
+    
+    save_matrix(
+        y_true=test_true,
+        y_pred=test_pred,
+        classes=classes,
+        path=os.path.join(results_path, f"confusion_matrix_test{file_suffix}.png")
+    )
+    
+    # Save ROC curves
+    num_classes = len(classes)
+    save_roc(
+        targets=train_true,
+        y_proba=train_proba,
+        path=os.path.join(results_path, f"roc_train{file_suffix}.png"),
+        nbr_classes=num_classes
+    )
+    
+    save_roc(
+        targets=test_true,
+        y_proba=test_proba,
+        path=os.path.join(results_path, f"roc_test{file_suffix}.png"),
+        nbr_classes=num_classes
+    )
+    
+    # Save training curves
+    save_graphs(
+        path_save=results_path + "/",
+        local_epoch=config.get('epochs', len(training_history.get('train_acc', []))),
+        results=training_history,
+        end_file=file_suffix
+    )
+    
+    print(f"All visualization results saved to: {results_path}")
+    print(f"Generated files:")
+    print(f"  - confusion_matrix_train{file_suffix}.png")
+    print(f"  - confusion_matrix_test{file_suffix}.png") 
+    print(f"  - roc_train{file_suffix}.png")
+    print(f"  - roc_test{file_suffix}.png")
+    print(f"  - Accuracy_curves{file_suffix}.png") 
+    print(f"  - Loss_curves{file_suffix}.png")

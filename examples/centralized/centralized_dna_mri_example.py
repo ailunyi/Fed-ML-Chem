@@ -11,7 +11,7 @@ from fed_ml_lib.models.modular import create_model
 from fed_ml_lib.data.loaders import load_datasets
 from fed_ml_lib.core.training import train
 from fed_ml_lib.core.testing import test_multimodal_health
-from fed_ml_lib.core.visualization import save_matrix, save_graphs_multimodal, save_roc
+from fed_ml_lib.core.visualization import save_all_results
 from fed_ml_lib.config.python_config import run_experiment
 
 class MultimodalNet(nn.Module):
@@ -185,70 +185,34 @@ def main():
     (test_true_mri, test_true_dna) = test_true
     (test_proba_mri, test_proba_dna) = test_proba
     
-    # Save MRI results
-    save_matrix(
-        y_true=train_true_mri,
-        y_pred=train_pred_mri,
+    # Save MRI results using convenience function
+    save_all_results(
+        train_true=train_true_mri,
+        train_pred=train_pred_mri,
+        train_proba=train_proba_mri,
+        test_true=test_true_mri,
+        test_pred=test_pred_mri,
+        test_proba=test_proba_mri,
+        training_history=training_history,
         classes=['glioma', 'meningioma', 'notumor', 'pituitary'],
-        path="results/centralized_dna_mri_example/confusion_matrix_mri_train.png"
+        results_path="results/centralized_dna_mri_example",
+        config=config,
+        file_suffix="_mri"
     )
     
-    save_matrix(
-        y_true=test_true_mri,
-        y_pred=test_pred_mri,
-        classes=['glioma', 'meningioma', 'notumor', 'pituitary'],
-        path="results/centralized_dna_mri_example/confusion_matrix_mri_test.png"
-    )
-    
-    save_roc(
-        targets=train_true_mri,
-        y_proba=train_proba_mri,
-        path="results/centralized_dna_mri_example/roc_mri_train.png",
-        nbr_classes=4
-    )
-    
-    save_roc(
-        targets=test_true_mri,
-        y_proba=test_proba_mri,
-        path="results/centralized_dna_mri_example/roc_mri_test.png",
-        nbr_classes=4
-    )
-    
-    # Save DNA results
-    save_matrix(
-        y_true=train_true_dna,
-        y_pred=train_pred_dna,
+    # Save DNA results using convenience function
+    save_all_results(
+        train_true=train_true_dna,
+        train_pred=train_pred_dna,
+        train_proba=train_proba_dna,
+        test_true=test_true_dna,
+        test_pred=test_pred_dna,
+        test_proba=test_proba_dna,
+        training_history=training_history,
         classes=['0', '1', '2', '3', '4', '5', '6'],
-        path="results/centralized_dna_mri_example/confusion_matrix_dna_train.png"
-    )
-    
-    save_matrix(
-        y_true=test_true_dna,
-        y_pred=test_pred_dna,
-        classes=['0', '1', '2', '3', '4', '5', '6'],
-        path="results/centralized_dna_mri_example/confusion_matrix_dna_test.png"
-    )
-    
-    save_roc(
-        targets=train_true_dna,
-        y_proba=train_proba_dna,
-        path="results/centralized_dna_mri_example/roc_dna_train.png",
-        nbr_classes=7
-    )
-    
-    save_roc(
-        targets=test_true_dna,
-        y_proba=test_proba_dna,
-        path="results/centralized_dna_mri_example/roc_dna_test.png",
-        nbr_classes=7
-    )
-    
-    # Save training curves
-    save_graphs_multimodal(
-        path_save="results/centralized_dna_mri_example/",
-        local_epoch=config['epochs'],
-        results=training_history,
-        end_file=""
+        results_path="results/centralized_dna_mri_example",
+        config=config,
+        file_suffix="_dna"
     )
     
     print(f"MRI Training accuracy: {train_acc_mri:.2f}%")

@@ -15,7 +15,7 @@ from fed_ml_lib.config.python_config import run_experiment
 from fed_ml_lib.data.loaders import load_datasets
 from fed_ml_lib.federated.client import FlowerClient
 from fed_ml_lib.federated.utils import get_parameters2, set_parameters
-from fed_ml_lib.core.visualization import save_matrix
+from fed_ml_lib.core.visualization import save_all_results
 from fed_ml_lib.core.testing import test
 
 # Quantum circuit parameters (matching legacy)
@@ -155,7 +155,19 @@ def evaluate_fn(server_round, parameters, config):
     # Save evaluation results
     os.makedirs("results/quantum_federated_pill/server/", exist_ok=True)
     class_names = ['bad', 'good']  # Actual PILL class names
-    save_matrix(y_true, y_pred, "results/quantum_federated_pill/server/confusion_matrix.png", class_names)
+    save_all_results(
+        train_true=y_true,
+        train_pred=y_pred,
+        train_proba=y_proba,
+        test_true=y_true,
+        test_pred=y_pred,
+        test_proba=y_proba,
+        training_history={},
+        classes=class_names,
+        results_path="results/quantum_federated_pill/server",
+        config={},
+        file_suffix=""
+    )
     
     print(f"Quantum Server evaluation - Round {server_round}: Loss {loss:.4f}, Accuracy {accuracy:.2f}%")
     return loss, {"accuracy": accuracy}

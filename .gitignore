@@ -8,3 +8,4 @@ examples/results
 venv/
 examples/error_logs/
 examples/output_logs/
+examples/cleanup_logs.py

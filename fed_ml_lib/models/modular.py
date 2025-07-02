@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
+import tenseal as ts
+from fed_ml_lib.core import security
 from typing import Optional, List, Union, Any, Dict, Tuple
 from dataclasses import dataclass, field
 from .base import BaseModel, ModelConfig
@@ -312,29 +314,112 @@ class FHEWrapper(nn.Module):
         self.fhe_scheme = fhe_scheme
         self.encryption_enabled = True
         
-        # FHE context (placeholder - would use actual FHE library)
-        self.encryption_context = {
-            'scheme': fhe_scheme,
-            'poly_modulus_degree': 8192,
-            'scale': 2.0**40,
-            'security_level': 128
-        }
+        
+        self.security = security
+        self.ts = ts
+        
+        # FHE context - will be set during first forward pass
+        self.fhe_context = None
+        self.encrypted_weights = {}
+        
+    def _initialize_fhe_context(self):
+        """Initialize FHE context on first use."""
+        if self.fhe_context is not None:
+            return
+            
+        try:
+            self.fhe_context = self.security.context()
+            print(f"FHEWrapper: Initialized {self.fhe_scheme} context")
+        except Exception as e:
+            print(f"FHEWrapper: Failed to initialize FHE context: {e}")
+            raise e
+    
+    def _encrypt_weights(self):
+        """Encrypt layer weights for homomorphic operations."""
+        if not self.fhe_context:
+            return
+            
+        try:
+            for name, param in self.layer.named_parameters():
+                if param.requires_grad:
+                    # Convert to numpy and encrypt
+                    weight_np = param.detach().cpu().numpy()
+                    encrypted_weight = self.ts.ckks_tensor(self.fhe_context, weight_np)
+                    self.encrypted_weights[name] = encrypted_weight
+                    
+        except Exception as e:
+            print(f"FHEWrapper: Weight encryption failed: {e}")
+            raise e
+    
+    def _decrypt_weights(self):
+        """Decrypt weights back to PyTorch tensors."""
+        if not self.encrypted_weights:
+            return
+            
+        try:
+            for name, param in self.layer.named_parameters():
+                if name in self.encrypted_weights:
+                    # Decrypt and convert back to tensor
+                    decrypted_weight = self.encrypted_weights[name].decrypt()
+                    param.data = torch.tensor(decrypted_weight, dtype=param.dtype, device=param.device)
+                    
+        except Exception as e:
+            print(f"FHEWrapper: Weight decryption failed: {e}")
+            raise e
     
     def forward(self, x):
+        """Forward pass with optional FHE operations."""
         if self.encryption_enabled and self.training:
-            # Placeholder for FHE encryption
-            # In practice, would encrypt tensor here
-            pass
+            # Initialize FHE context if needed
+            if self.fhe_context is None:
+                self._initialize_fhe_context()
             
-        # Process with wrapped layer
+            # For training, we can encrypt weights for secure aggregation
+            # but still need to use regular forward pass for gradient computation
+            if self.fhe_context is not None:
+                # Store current state for potential encryption during parameter sharing
+                pass
+        
+        # Process with wrapped layer (always use regular computation for now)
+        # In a full FHE implementation, this would use homomorphic operations
         x = self.layer(x)
         
-        if self.encryption_enabled and self.training:
-            # Placeholder for FHE decryption
-            # In practice, would decrypt tensor here
-            pass
-        
         return x
+    
+    def get_encrypted_parameters(self):
+        """Get encrypted parameters for secure federated aggregation."""
+        self._encrypt_weights()
+        return {name: encrypted.serialize() 
+               for name, encrypted in self.encrypted_weights.items()}
+    
+    def set_encrypted_parameters(self, encrypted_params):
+        """Set parameters from encrypted data."""
+        try:
+            # Deserialize and decrypt parameters
+            for name, encrypted_data in encrypted_params.items():
+                if isinstance(encrypted_data, bytes):
+                    # Deserialize encrypted tensor
+                    encrypted_tensor = self.ts.ckks_tensor_from(self.fhe_context, encrypted_data)
+                    decrypted_data = encrypted_tensor.decrypt()
+                    
+                    # Set parameter
+                    for param_name, param in self.layer.named_parameters():
+                        if param_name == name:
+                            param.data = torch.tensor(decrypted_data, 
+                                                    dtype=param.dtype, device=param.device)
+                            break
+                            
+        except Exception as e:
+            print(f"FHEWrapper: Failed to set encrypted parameters: {e}")
+            raise e
+    
+    def enable_encryption(self):
+        """Enable FHE encryption for this layer."""
+        self.encryption_enabled = True
+        
+    def disable_encryption(self):
+        """Disable FHE encryption for this layer."""
+        self.encryption_enabled = False
 
 
 class QuantumWrapper(nn.Module):

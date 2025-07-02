@@ -99,7 +99,7 @@ def read_and_prepare_data(file_path, seed, size=6):
     return trainset, testset
 
 def load_datasets(num_clients: int, batch_size: int, resize: int, seed: int, num_workers: int, splitter=10,
-                  dataset="cifar", data_path="./data/", data_path_val=""):
+                  dataset="cifar", data_path="./data/", data_path_val="", custom_normalizations=None):
     """
     This function is used to load the dataset and split it into train and test for each client.
     :param num_clients: the number of clients
@@ -111,8 +111,17 @@ def load_datasets(num_clients: int, batch_size: int, resize: int, seed: int, num
     :param dataset: the name of the dataset in the data folder
     :param data_path: the path of the data folder
     :param data_path_val: the absolute path of the validation data (if None, no validation data)
+    :param custom_normalizations: dict with custom normalization values. Format: {'dataset_name': {'mean': (tuple), 'std': (tuple)}}
     :return: the train and test data loaders
     """
+    # Handle custom normalizations
+    if custom_normalizations and dataset in custom_normalizations:
+        NORMALIZE_DICT[dataset] = dict(
+            mean=custom_normalizations[dataset]['mean'],
+            std=custom_normalizations[dataset]['std']
+        )
+        print(f"Using custom normalization for '{dataset}': {NORMALIZE_DICT[dataset]}")
+    
     DataLoader = PyGDataLoader if dataset == "hiv" else TorchDataLoader
     list_transforms = [transforms.ToTensor(), transforms.Normalize(**NORMALIZE_DICT[dataset])] if dataset not in ["MMF", "DNA", "hiv"] else None
     print(dataset)
@@ -203,95 +212,38 @@ def load_datasets(num_clients: int, batch_size: int, resize: int, seed: int, num
     testloader = DataLoader(testset, batch_size=batch_size)
     return trainloaders, valloaders, testloader
 
-def create_data_loaders(dataset_name: str, data_path: str = "./data/", 
-                       batch_size: int = 32, resize: int = None, 
-                       seed: int = 42, num_workers: int = 0, 
-                       test_split: float = 0.2):
+def infer_dataset_properties(dataloader):
     """
-    Create train and test data loaders for a given dataset.
-    This is a simplified wrapper around load_datasets for single-machine use.
-    """
-    # For single machine, we just need 1 client
-    trainloaders, valloaders, testloader = load_datasets(
-        num_clients=1, 
-        batch_size=batch_size, 
-        resize=resize, 
-        seed=seed, 
-        num_workers=num_workers,
-        splitter=int(test_split * 100),
-        dataset=dataset_name,
-        data_path=data_path
-    )
+    Automatically infer dataset properties from a DataLoader.
     
-    return trainloaders[0], valloaders[0], testloader
-
-def create_federated_data_loaders(dataset_name: str, num_clients: int,
-                                 data_path: str = "./data/", 
-                                 batch_size: int = 32, resize: int = None,
-                                 seed: int = 42, num_workers: int = 0,
-                                 partition_type: str = "iid"):
-    """
-    Create federated data loaders for multiple clients.
-    """
-    return load_datasets(
-        num_clients=num_clients,
-        batch_size=batch_size,
-        resize=resize,
-        seed=seed,
-        num_workers=num_workers,
-        dataset=dataset_name,
-        data_path=data_path
-    )
-
-def get_dataset_info(dataset_name: str, data_path: str = "./data/"):
-    """
-    Get information about a dataset.
-    """
-    info = {
-        'name': dataset_name,
-        'path': data_path,
-        'normalize_dict': NORMALIZE_DICT.get(dataset_name, None)
-    }
+    Args:
+        dataloader: PyTorch DataLoader to analyze
+        
+    Returns:
+        tuple: (input_shape, num_classes)
+            - input_shape: Shape of input features (excluding batch dimension)
+            - num_classes: Number of unique classes in the dataset
     
-    if dataset_name == "DNA":
-        info['num_classes'] = 7
-        info['input_shape'] = (None,)  # Variable length sequences
-        info['description'] = "DNA sequence classification dataset"
-    elif dataset_name == "MMF":
-        info['num_classes'] = 8
-        info['input_shape'] = (None,)  # Variable features
-        info['description'] = "Multimodal Audio-Vision emotion recognition dataset"
-    elif dataset_name == "hiv":
-        info['num_classes'] = 2
-        info['input_shape'] = (None,)  # Graph data
-        info['description'] = "HIV molecule classification dataset"
-    elif dataset_name in ["PILL", "MRI", "BREAST", "HISTO", "PCOS", "Wafer"]:
-        info['num_classes'] = None  # Will be determined from dataset
-        info['input_shape'] = (3, 224, 224)  # Default image size
-        info['description'] = f"{dataset_name} image classification dataset"
+    Example:
+        >>> input_shape, num_classes = infer_dataset_properties(testloader)
+        >>> print(f"Input shape: {input_shape}, Classes: {num_classes}")
+        Input shape: (180,), Classes: 7
+    """
+    # Get input shape from first batch
+    sample_input, _ = next(iter(dataloader))
+    if len(sample_input.shape) == 2:  # (batch_size, features)
+        input_shape = (sample_input.shape[1],)
+    elif len(sample_input.shape) == 4:  # (batch_size, channels, height, width)
+        input_shape = sample_input.shape[1:]
     else:
-        info['num_classes'] = None
-        info['input_shape'] = None
-        info['description'] = f"Unknown dataset: {dataset_name}"
+        input_shape = sample_input.shape[1:]
     
-    return info
+    # Count unique classes by scanning all labels
+    all_labels = set()
+    for _, labels in dataloader:
+        all_labels.update(labels.tolist())
+    num_classes = len(all_labels)
+    
+    return input_shape, num_classes
 
-def get_transforms(dataset_name: str, resize: int = None):
-    """
-    Get transforms for a given dataset.
-    """
-    if dataset_name in ["MMF", "DNA", "hiv"]:
-        return None  # These datasets don't use image transforms
-    
-    normalize_params = NORMALIZE_DICT.get(dataset_name, NORMALIZE_DICT['imagenet'])
-    
-    transform_list = []
-    if resize is not None:
-        transform_list.append(transforms.Resize((resize, resize)))
-    
-    transform_list.extend([
-        transforms.ToTensor(),
-        transforms.Normalize(**normalize_params)
-    ])
-    
-    return transforms.Compose(transform_list)
+

@@ -43,4 +43,6 @@ echo "## Running model"
 
 # Launch GPU code
 
-python quantum_federated_pill_example_fixed.py
+python centralized/centralized_dna_example.py
+
+python cleanup_logs.py

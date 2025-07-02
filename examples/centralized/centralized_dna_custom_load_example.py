@@ -13,7 +13,8 @@ import json
 
 from fed_ml_lib.config import dna_mlp
 from fed_ml_lib.models import create_model
-from fed_ml_lib.core.visualization import save_graphs, save_matrix
+from fed_ml_lib.data.loaders import infer_dataset_properties
+from fed_ml_lib.core.visualization import save_all_results
 from fed_ml_lib.core.testing import test
 from fed_ml_lib.core.training import train
 
@@ -82,7 +83,7 @@ def create_data_loaders(trainset, testset, batch_size=32):
     test_loader = DataLoader(testset, batch_size=batch_size, shuffle=False)
     return train_loader, test_loader
 
-def test_and_save_matrix(model, data_loader, device, num_classes, matrix_name):
+def test_and_return_results(model, data_loader, device):
     """Test the model and return results."""
     loss, accuracy, y_pred, y_true, y_proba = test(
         model=model,
@@ -91,11 +92,7 @@ def test_and_save_matrix(model, data_loader, device, num_classes, matrix_name):
         device=device
     )
     
-    # Save confusion matrix
-    class_names = [str(i) for i in range(num_classes)]
-    save_matrix(y_true, y_pred, f"results/centralized_dna_example/{matrix_name}", class_names)
-    
-    return loss, accuracy
+    return loss, accuracy, y_pred, y_true, y_proba
 
 def main():
     """Main training function."""
@@ -114,8 +111,7 @@ def main():
     train_loader, test_loader = create_data_loaders(trainset, testset, batch_size=config['batch_size'])
     
     # Get input shape from data
-    sample_input, _ = next(iter(train_loader))
-    input_shape = (sample_input.shape[1],)  # TF-IDF feature dimension
+    input_shape, _ = infer_dataset_properties(train_loader)
     
     print(f"Dataset loaded: {len(trainset)} train samples, {len(testset)} test samples")
     print(f"Number of classes: {num_classes}")
@@ -155,14 +151,28 @@ def main():
         device=device
     )
     
-    # Test on training data for training confusion matrix
-    train_loss, train_accuracy = test_and_save_matrix(model, train_loader, device, num_classes, "confusion_matrix_train.png")
+    # Test on training data 
+    train_loss, train_accuracy, train_pred, train_true, train_proba = test_and_return_results(model, train_loader, device)
     
-    # Test on test data for test confusion matrix  
-    test_loss, test_accuracy = test_and_save_matrix(model, test_loader, device, num_classes, "confusion_matrix_test.png")
+    # Test on test data
+    test_loss, test_accuracy, test_pred, test_true, test_proba = test_and_return_results(model, test_loader, device)
     
-    # Save training curves
-    save_graphs("results/centralized_dna_example/", config['epochs'], results, "_DNA_centralized")
+    # Save all visualization results using convenience function
+    class_names = [str(i) for i in range(num_classes)]
+    
+    save_all_results(
+        train_true=train_true,
+        train_pred=train_pred,
+        train_proba=train_proba,
+        test_true=test_true,
+        test_pred=test_pred,
+        test_proba=test_proba,
+        training_history=results,
+        classes=class_names,
+        results_path="results/centralized_dna_example",
+        config=config,
+        file_suffix="_DNA_centralized"
+    )
     
     print(f"Training accuracy: {train_accuracy:.2f}%")
     print(f"Test accuracy: {test_accuracy:.2f}%")
