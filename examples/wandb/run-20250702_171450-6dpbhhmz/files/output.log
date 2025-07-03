@@ -1,0 +1,29 @@
+  Creating config: rsna_centralized_cnn
+   Dataset: rsna_chestxray
+   Model: cnn
+   Training: 50 epochs, lr=0.001
+Loading dataset from: ../../../../anvil/projects/x-chm250024/data/
+Using custom RSNA normalization: mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)
+Starting centralized CNN training...
+Tracking experiment on wandb: https://wandb.ai/alanyi2006-purdue-university/rsna-centralized-training/runs/6dpbhhmz
+Available GPUs to wandb: [<GPUtil.GPUtil.GPU object at 0x14e837339a50>]
+GPU count visible: 1
+Using device: cuda
+Loading rsna_chestxray dataset using library...
+Using custom normalization for 'rsna_chestxray': {'mean': (0.485, 0.456, 0.406), 'std': (0.229, 0.224, 0.225)}
+rsna_chestxray
+The training set is created for the classes : ['Lung opacity', 'Normal']
+Dataset loaded: 19749 train samples, 3741 test samples
+Number of classes: 2
+Input shape: torch.Size([3, 32, 32])
+Using library model creation system
+Model moved to: cuda
+Starting training...
+ 14%|[34m█▍        [0m| 7/50 [1:50:40<11:12:17, 938.08s/it]
+	Train Epoch: 1 	Train_loss: 0.5347 | Train_acc: 75.3135 % | Validation_loss: 0.5426 | Validation_acc: 75.2013 %
+	Train Epoch: 2 	Train_loss: 0.5178 | Train_acc: 75.2842 % | Validation_loss: 0.5174 | Validation_acc: 75.2013 %
+	Train Epoch: 3 	Train_loss: 0.5129 | Train_acc: 75.4905 % | Validation_loss: 0.5199 | Validation_acc: 75.6190 %
+	Train Epoch: 4 	Train_loss: 0.5076 | Train_acc: 75.7110 % | Validation_loss: 0.5126 | Validation_acc: 75.7095 %
+	Train Epoch: 5 	Train_loss: 0.5020 | Train_acc: 75.9051 % | Validation_loss: 0.5083 | Validation_acc: 76.0719 %
+	Train Epoch: 6 	Train_loss: 0.4983 | Train_acc: 76.2975 % | Validation_loss: 0.5065 | Validation_acc: 75.9712 %
+	Train Epoch: 7 	Train_loss: 0.4933 | Train_acc: 76.5018 % | Validation_loss: 0.5096 | Validation_acc: 75.7901 %

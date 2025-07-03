@@ -1,0 +1,20 @@
+  Creating config: rsna_centralized_cnn
+   Dataset: rsna_chestxray
+   Model: cnn
+   Training: 50 epochs, lr=0.001
+Loading dataset from: ../../../../anvil/projects/x-chm250024/data/
+Using custom RSNA normalization: mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)
+Starting centralized CNN training...
+Tracking experiment on wandb: https://wandb.ai/alanyi2006-purdue-university/rsna-centralized-training/runs/xc9wjfpk
+Using device: cuda
+Loading rsna_chestxray dataset using library...
+Using custom normalization for 'rsna_chestxray': {'mean': (0.485, 0.456, 0.406), 'std': (0.229, 0.224, 0.225)}
+rsna_chestxray
+The training set is created for the classes : ['Lung opacity', 'Normal']
+Dataset loaded: 19749 train samples, 3741 test samples
+Number of classes: 2
+Input shape: torch.Size([3, 32, 32])
+Using library model creation system
+Model moved to: cuda
+Starting training...
+  0%|[34m          [0m| 0/50 [00:00<?, ?it/s]

@@ -21,8 +21,15 @@ CLASSES = []
 # central = Net(num_classes=len(CLASSES)).to(DEVICE)
 
 def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
-    accuracies = [num_examples * m["accuracy"] for num_examples, m in metrics]
-    examples = [num_examples for num_examples, _ in metrics]
+    # Filter out clients with no validation examples to prevent dimension mismatch
+    valid_metrics = [(num_examples, m) for num_examples, m in metrics if num_examples > 0]
+    
+    if not valid_metrics:
+        # If no clients have validation data, return default accuracy
+        return {"accuracy": 0.0}
+    
+    accuracies = [num_examples * m["accuracy"] for num_examples, m in valid_metrics]
+    examples = [num_examples for num_examples, _ in valid_metrics]
     return {"accuracy": sum(accuracies) / sum(examples)}
 
 def evaluate2(server_round: int, parameters: NDArrays,
@@ -131,7 +138,8 @@ def create_client_fn(
             num_workers=dataset_params.get('num_workers', 0),
             splitter=dataset_params.get('splitter', 10),
             dataset=config.get('dataset', 'DNA'),
-            data_path=dataset_params.get('data_path', "data/")
+            data_path=dataset_params.get('data_path', "data/"),
+            custom_normalizations=dataset_params.get('custom_normalizations')
         )
         
         # Get dataset properties for model creation
@@ -230,7 +238,8 @@ def create_evaluate_fn(
             num_workers=dataset_params.get('num_workers', 0),
             splitter=dataset_params.get('splitter', 10),
             dataset=config.get('dataset', 'DNA'),
-            data_path=dataset_params.get('data_path', "data/")
+            data_path=dataset_params.get('data_path', "data/"),
+            custom_normalizations=dataset_params.get('custom_normalizations')
         )
         
         # Get dataset properties
@@ -337,7 +346,7 @@ def run_federated_simulation(
         ```
     """
     import flwr as fl
-    from ..strategies import create_fedavg_strategy
+    from .strategies import create_fedavg_strategy
     from ..data.loaders import load_datasets, infer_dataset_properties
     from ..models.modular import create_model
     
@@ -368,7 +377,8 @@ def run_federated_simulation(
             num_workers=dataset_params.get('num_workers', 0),
             splitter=dataset_params.get('splitter', 10),
             dataset=config['dataset'],
-            data_path=dataset_params.get('data_path', "data/")
+            data_path=dataset_params.get('data_path', "data/"),
+            custom_normalizations=dataset_params.get('custom_normalizations')
         )
     
     # Get dataset properties for initial model

@@ -49,7 +49,7 @@ def main():
         model_params=model_params,
         num_clients=4,
         num_rounds=3,
-        result_base_path="results/quantum_federated_dna",
+        result_base_path="results/quantum_federated_dna2",
         dataset_params=dataset_params
     )
 

@@ -4,8 +4,9 @@
 #SBATCH --nodes=1             # Total # of nodes 
 #SBATCH --ntasks-per-node=1   # Number of MPI ranks per node (one rank per GPU)
 #SBATCH --gpus-per-node=1   # Number of GPUs per node
+#SBATCH --cpus-per-task=16
 #SBATCH --mem=128G
-#SBATCH --time=2:00:00        # Total run time limit (hh:mm:ss)
+#SBATCH --time=20:00:00        # Total run time limit (hh:mm:ss)
 #SBATCH -J fl_job               # Job name
 #SBATCH -o output_logs/run.o%j        # Name of stdout output file
 #SBATCH -e error_logs/run.e%j          # Name of stderr error file
@@ -43,6 +44,8 @@ echo "## Running model"
 
 # Launch GPU code
 
-python centralized/centralized_dna_example.py
+#python QNN_federated/quantum_federated_dna_example.py
 
-python cleanup_logs.py
+python RSNA_centralized.py
+
+#python cleanup_logs.py

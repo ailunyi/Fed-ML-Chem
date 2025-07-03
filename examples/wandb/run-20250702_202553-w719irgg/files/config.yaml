@@ -1,0 +1,170 @@
+_wandb:
+    value:
+        cli_version: 0.21.0
+        e:
+            d0nkchc5c8x7eeknbz9ygm7d7ujcx1m6:
+                codePath: examples/RSNA_centralized.py
+                codePathLocal: RSNA_centralized.py
+                cpu_count: 128
+                cpu_count_logical: 128
+                cudaVersion: "12.6"
+                disk:
+                    /:
+                        total: "270302597120"
+                        used: "15706402816"
+                email: alanyi2006@gmail.com
+                executable: /home/x-danoruo/miniconda3/envs/fedml-gpu/bin/python
+                git:
+                    commit: aad86d3a5b84d0192d3371f9d7fbac10234a0dcc
+                    remote: https://github.com/ailunyi/Fed-ML-Chem.git
+                gpu: NVIDIA A100-SXM4-40GB
+                gpu_count: 1
+                gpu_nvidia:
+                    - architecture: Ampere
+                      cudaCores: 6912
+                      memoryTotal: "42949672960"
+                      name: NVIDIA A100-SXM4-40GB
+                      uuid: GPU-62320b49-ac76-74b2-4259-f90623c55aed
+                host: g002.anvil.rcac.purdue.edu
+                memory:
+                    total: "540605198336"
+                os: Linux-4.18.0-553.16.1.el8_10.x86_64-x86_64-with-glibc2.28
+                program: /home/x-danoruo/Fed-ML-Chem/examples/RSNA_centralized.py
+                python: CPython 3.10.18
+                root: /home/x-danoruo/Fed-ML-Chem/examples
+                slurm:
+                    cluster_name: anvil
+                    conf: /var/spool/slurm/conf-cache/slurm.conf
+                    cpus_on_node: "16"
+                    cpus_per_task: "16"
+                    gpus_on_node: "1"
+                    gpus_per_node: "1"
+                    gtids: "0"
+                    job_account: chm250024-gpu
+                    job_cpus_per_node: "16"
+                    job_end_time: "1751574339"
+                    job_gid: "7008659"
+                    job_gpus: "3"
+                    job_id: "12657671"
+                    job_name: fl_job
+                    job_nodelist: g002
+                    job_num_nodes: "1"
+                    job_partition: gpu
+                    job_qos: gpu
+                    job_start_time: "1751502339"
+                    job_uid: "7958237"
+                    job_user: x-danoruo
+                    jobid: "12657671"
+                    localid: "0"
+                    mem_per_node: "131072"
+                    nnodes: "1"
+                    nodeid: "0"
+                    nodelist: g002
+                    nprocs: "1"
+                    ntasks: "1"
+                    ntasks_per_node: "1"
+                    prio_process: "0"
+                    procid: "0"
+                    script_context: prolog_task
+                    submit_dir: /home/x-danoruo/Fed-ML-Chem/examples
+                    submit_host: login03.anvil.rcac.purdue.edu
+                    task_pid: "363194"
+                    tasks_per_node: "1"
+                    topology_addr: ibsw[23-32].ibsw1.g002
+                    topology_addr_pattern: switch.switch.node
+                    tres_per_task: cpu=16
+                startedAt: "2025-07-03T00:25:53.145844Z"
+                writerId: d0nkchc5c8x7eeknbz9ygm7d7ujcx1m6
+        m: []
+        python_version: 3.10.18
+        t:
+            "1":
+                - 1
+                - 5
+                - 11
+                - 30
+                - 41
+                - 49
+                - 53
+                - 77
+            "2":
+                - 1
+                - 5
+                - 11
+                - 30
+                - 41
+                - 49
+                - 53
+                - 77
+            "3":
+                - 2
+                - 13
+                - 15
+                - 62
+            "4": 3.10.18
+            "5": 0.21.0
+            "6": 4.52.4
+            "12": 0.21.0
+            "13": linux-x86_64
+base_architecture:
+    value: cnn
+batch_size:
+    value: 32
+conv_channels:
+    value:
+        - 32
+dataset:
+    value: rsna_chestxray
+domain:
+    value: vision
+dropout_rate:
+    value: 0.1
+epochs:
+    value: 25
+gpu_enabled:
+    value: true
+hidden_dims:
+    value:
+        - 64
+image_resize:
+    value: 32
+kernel_size:
+    value: 2
+learning_rate:
+    value: 0.001
+lung_opacity_samples:
+    value: 6012
+model_type:
+    value: cnn
+normal_samples:
+    value: 8851
+normalization_mean:
+    value:
+        - 0.485
+        - 0.456
+        - 0.406
+normalization_std:
+    value:
+        - 0.229
+        - 0.224
+        - 0.225
+num_workers:
+    value: 4
+original_image_size:
+    value: 512x512
+output_activation:
+    value: sigmoid
+pooling_type:
+    value: max
+processed_image_size:
+    value: 32x32
+random_seed:
+    value: 42
+test_split:
+    value: 0.2
+total_samples:
+    value: 14863
+train_split:
+    value: 0.7
+val_split:
+    value: 0.1

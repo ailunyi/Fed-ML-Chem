@@ -1,0 +1,38 @@
+  Creating config: rsna_centralized_cnn
+   Dataset: rsna_chestxray
+   Model: cnn
+   Training: 50 epochs, lr=0.001
+Loading dataset from: ../../../../anvil/projects/x-chm250024/data/
+Using custom RSNA normalization: mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)
+Starting centralized CNN training...
+Tracking experiment on wandb: https://wandb.ai/alanyi2006-purdue-university/rsna-centralized-training/runs/ba60ryqm
+Available GPUs to wandb: [<GPUtil.GPUtil.GPU object at 0x147060446f20>]
+GPU count visible: 1
+Using device: cuda
+Loading rsna_chestxray dataset using library...
+Using custom normalization for 'rsna_chestxray': {'mean': (0.485, 0.456, 0.406), 'std': (0.229, 0.224, 0.225)}
+rsna_chestxray
+The training set is created for the classes : ['Lung opacity', 'Normal']
+Dataset loaded: 19749 train samples, 3741 test samples
+Number of classes: 2
+Input shape: torch.Size([3, 32, 32])
+Traceback (most recent call last):
+  File "/home/x-danoruo/Fed-ML-Chem/examples/RSNA_centralized.py", line 146, in <module>
+    main()
+  File "/home/x-danoruo/Fed-ML-Chem/examples/RSNA_centralized.py", line 114, in main
+    results = run_centralized_simulation(
+  File "/home/x-danoruo/Fed-ML-Chem/fed_ml_lib/centralized/utils.py", line 112, in run_centralized_simulation
+    model = create_model(
+  File "/home/x-danoruo/Fed-ML-Chem/fed_ml_lib/models/modular.py", line 519, in create_model
+    config = ModularConfig(
+TypeError: ModularConfig.__init__() got an unexpected keyword argument 'filter_size'
+Traceback (most recent call last):
+  File "/home/x-danoruo/Fed-ML-Chem/examples/RSNA_centralized.py", line 146, in <module>
+    main()
+  File "/home/x-danoruo/Fed-ML-Chem/examples/RSNA_centralized.py", line 114, in main
+    results = run_centralized_simulation(
+  File "/home/x-danoruo/Fed-ML-Chem/fed_ml_lib/centralized/utils.py", line 112, in run_centralized_simulation
+    model = create_model(
+  File "/home/x-danoruo/Fed-ML-Chem/fed_ml_lib/models/modular.py", line 519, in create_model
+    config = ModularConfig(
+TypeError: ModularConfig.__init__() got an unexpected keyword argument 'filter_size'

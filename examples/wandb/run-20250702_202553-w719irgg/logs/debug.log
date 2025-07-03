@@ -1,0 +1,29 @@
+2025-07-02 20:25:53,149 INFO    MainThread:363294 [wandb_setup.py:_flush():80] Current SDK version is 0.21.0
+2025-07-02 20:25:53,149 INFO    MainThread:363294 [wandb_setup.py:_flush():80] Configure stats pid to 363294
+2025-07-02 20:25:53,149 INFO    MainThread:363294 [wandb_setup.py:_flush():80] Loading settings from /home/x-danoruo/.config/wandb/settings
+2025-07-02 20:25:53,149 INFO    MainThread:363294 [wandb_setup.py:_flush():80] Loading settings from /home/x-danoruo/Fed-ML-Chem/examples/wandb/settings
+2025-07-02 20:25:53,149 INFO    MainThread:363294 [wandb_setup.py:_flush():80] Loading settings from environment variables
+2025-07-02 20:25:53,149 INFO    MainThread:363294 [wandb_init.py:setup_run_log_directory():703] Logging user logs to /home/x-danoruo/Fed-ML-Chem/examples/wandb/run-20250702_202553-w719irgg/logs/debug.log
+2025-07-02 20:25:53,149 INFO    MainThread:363294 [wandb_init.py:setup_run_log_directory():704] Logging internal logs to /home/x-danoruo/Fed-ML-Chem/examples/wandb/run-20250702_202553-w719irgg/logs/debug-internal.log
+2025-07-02 20:25:53,149 INFO    MainThread:363294 [wandb_init.py:init():830] calling init triggers
+2025-07-02 20:25:53,149 INFO    MainThread:363294 [wandb_init.py:init():835] wandb.init called with sweep_config: {}
+config: {'_wandb': {}}
+2025-07-02 20:25:53,149 INFO    MainThread:363294 [wandb_init.py:init():871] starting backend
+2025-07-02 20:25:53,359 INFO    MainThread:363294 [wandb_init.py:init():874] sending inform_init request
+2025-07-02 20:25:53,367 INFO    MainThread:363294 [wandb_init.py:init():882] backend started and connected
+2025-07-02 20:25:53,369 INFO    MainThread:363294 [wandb_init.py:init():953] updated telemetry
+2025-07-02 20:25:53,391 INFO    MainThread:363294 [wandb_init.py:init():977] communicating run to backend with 90.0 second timeout
+2025-07-02 20:25:53,686 INFO    MainThread:363294 [wandb_init.py:init():1029] starting run threads in backend
+2025-07-02 20:25:53,833 INFO    MainThread:363294 [wandb_run.py:_console_start():2458] atexit reg
+2025-07-02 20:25:53,833 INFO    MainThread:363294 [wandb_run.py:_redirect():2306] redirect: wrap_raw
+2025-07-02 20:25:53,834 INFO    MainThread:363294 [wandb_run.py:_redirect():2375] Wrapping output streams.
+2025-07-02 20:25:53,834 INFO    MainThread:363294 [wandb_run.py:_redirect():2398] Redirects installed.
+2025-07-02 20:25:53,837 INFO    MainThread:363294 [wandb_init.py:init():1075] run started, returning control to user process
+2025-07-02 20:25:53,838 INFO    MainThread:363294 [wandb_run.py:_config_callback():1363] config_cb None None {'epochs': 25, 'learning_rate': 0.001, 'batch_size': 32, 'dropout_rate': 0.1, 'model_type': 'cnn', 'dataset': 'rsna_chestxray', 'gpu_enabled': True, 'base_architecture': 'cnn', 'conv_channels': [32], 'hidden_dims': [64], 'domain': 'vision', 'kernel_size': 2, 'pooling_type': 'max', 'output_activation': 'sigmoid', 'image_resize': 32, 'train_split': 0.7, 'val_split': 0.1, 'test_split': 0.2, 'random_seed': 42, 'num_workers': 4, 'normalization_mean': [0.485, 0.456, 0.406], 'normalization_std': [0.229, 0.224, 0.225], 'total_samples': 14863, 'normal_samples': 8851, 'lung_opacity_samples': 6012, 'original_image_size': '512x512', 'processed_image_size': '32x32'}
+2025-07-03 03:26:53,264 INFO    MainThread:363294 [wandb_run.py:_finish():2224] finishing run alanyi2006-purdue-university/rsna-centralized-training/w719irgg
+2025-07-03 03:26:53,265 INFO    MainThread:363294 [wandb_run.py:_atexit_cleanup():2423] got exitcode: 0
+2025-07-03 03:26:53,265 INFO    MainThread:363294 [wandb_run.py:_restore():2405] restore
+2025-07-03 03:26:53,265 INFO    MainThread:363294 [wandb_run.py:_restore():2411] restore done
+2025-07-03 03:26:53,854 INFO    MainThread:363294 [wandb_run.py:_footer_history_summary_info():3903] rendering history
+2025-07-03 03:26:53,854 INFO    MainThread:363294 [wandb_run.py:_footer_history_summary_info():3935] rendering summary
+2025-07-03 03:26:53,854 INFO    MainThread:363294 [wandb_run.py:_footer_sync_info():3864] logging synced files

@@ -1,0 +1,67 @@
+  Creating config: rsna_centralized_cnn
+   Dataset: rsna_chestxray
+   Model: cnn
+   Training: 25 epochs, lr=0.001
+Loading dataset from: ../../../../anvil/projects/x-chm250024/data/
+Using custom RSNA normalization: mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)
+Starting centralized CNN training...
+Tracking experiment on wandb: https://wandb.ai/alanyi2006-purdue-university/rsna-centralized-training/runs/w719irgg
+Available GPUs to wandb: [<GPUtil.GPUtil.GPU object at 0x1466d630bfd0>]
+GPU count visible: 1
+Using device: cuda
+Loading rsna_chestxray dataset using library...
+Using custom normalization for 'rsna_chestxray': {'mean': (0.485, 0.456, 0.406), 'std': (0.229, 0.224, 0.225)}
+rsna_chestxray
+The training set is created for the classes : ['Lung opacity', 'Normal']
+Dataset loaded: 19749 train samples, 3741 test samples
+Number of classes: 2
+Input shape: torch.Size([3, 32, 32])
+Using library model creation system
+Model moved to: cuda
+Starting training...
+100%|[34m██████████[0m| 25/25 [6:42:36<00:00, 966.27s/it]   
+	Train Epoch: 1 	Train_loss: 0.5598 | Train_acc: 75.2913 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 2 	Train_loss: 0.5591 | Train_acc: 75.4146 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 3 	Train_loss: 0.5599 | Train_acc: 75.3327 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 4 	Train_loss: 0.5591 | Train_acc: 75.4146 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 5 	Train_loss: 0.5594 | Train_acc: 75.3873 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 6 	Train_loss: 0.5594 | Train_acc: 75.3873 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 7 	Train_loss: 0.5594 | Train_acc: 75.3873 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 8 	Train_loss: 0.5599 | Train_acc: 75.3327 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 9 	Train_loss: 0.5594 | Train_acc: 75.3873 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 10 	Train_loss: 0.5591 | Train_acc: 75.4146 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 11 	Train_loss: 0.5594 | Train_acc: 75.3873 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 12 	Train_loss: 0.5591 | Train_acc: 75.4146 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 13 	Train_loss: 0.5597 | Train_acc: 75.3600 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 14 	Train_loss: 0.5594 | Train_acc: 75.3873 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 15 	Train_loss: 0.5594 | Train_acc: 75.3873 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 16 	Train_loss: 0.5591 | Train_acc: 75.4146 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 17 	Train_loss: 0.5594 | Train_acc: 75.3873 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 18 	Train_loss: 0.5591 | Train_acc: 75.4146 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 19 	Train_loss: 0.5597 | Train_acc: 75.3600 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 20 	Train_loss: 0.5594 | Train_acc: 75.3873 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 21 	Train_loss: 0.5591 | Train_acc: 75.4146 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 22 	Train_loss: 0.5597 | Train_acc: 75.3600 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 23 	Train_loss: 0.5597 | Train_acc: 75.3600 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 24 	Train_loss: 0.5594 | Train_acc: 75.3873 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+	Train Epoch: 25 	Train_loss: 0.5591 | Train_acc: 75.4146 % | Validation_loss: 0.5612 | Validation_acc: 75.2013 %
+save graph in  results/centralized_rsna_cnn2/
+All visualization results saved to: results/centralized_rsna_cnn2
+Generated files:
+  - confusion_matrix_train_rsna_chestxray_centralized.png
+  - confusion_matrix_test_rsna_chestxray_centralized.png
+  - roc_train_rsna_chestxray_centralized.png
+  - roc_test_rsna_chestxray_centralized.png
+  - Accuracy_curves_rsna_chestxray_centralized.png
+  - Loss_curves_rsna_chestxray_centralized.png
+Training accuracy: 75.41%
+Test accuracy: 73.58%
+Total training time: 25102.16 seconds
+Training plots and confusion matrices saved to results/centralized_rsna_cnn2/ folder
+============================================================
+TRAINING RESULTS
+============================================================
+Final training accuracy: 75.41%
+Final test accuracy: 73.58%
+Training completed in 25102.16 seconds
+View results at: https://wandb.ai/alanyi2006-purdue-university/rsna-centralized-training/runs/w719irgg

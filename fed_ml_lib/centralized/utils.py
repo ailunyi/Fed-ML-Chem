@@ -88,7 +88,8 @@ def run_centralized_simulation(
             num_workers=dataset_params.get('num_workers', 0),
             splitter=dataset_params.get('splitter', 10),
             dataset=config['dataset'],
-            data_path=dataset_params.get('data_path', "data/")
+            data_path=dataset_params.get('data_path', "data/"),
+            custom_normalizations=dataset_params.get('custom_normalizations')
         )
         
         # Get the single client's data loaders

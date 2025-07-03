@@ -1,0 +1,1 @@
+{"training_time_seconds":25102.155113220215,"_step":0,"best_test_accuracy":73.58440170940172,"_timestamp":1.7515276132635024e+09,"_wandb":{"runtime":25259},"training_time_minutes":418.3692518870036,"best_train_accuracy":75.41464401294499,"final_train_accuracy":75.41464401294499,"_runtime":25259,"total_training_time":25102.155113220215,"final_test_accuracy":73.58440170940172}

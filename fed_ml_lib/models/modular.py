@@ -30,6 +30,11 @@ class ModularConfig(ModelConfig):
     use_pretrained: bool = False
     freeze_layers: int = 0
     
+    # CNN-specific customization parameters
+    kernel_size: int = 3  # Convolutional kernel size (default 3x3)
+    pooling_type: str = "max"  # "max", "avg", or "none"
+    output_activation: str = "none"  # "sigmoid", "softmax", "relu", or "none"
+    
     # Encryption configuration
     use_fhe: bool = False
     fhe_scheme: str = "CKKS"  # CKKS, BFV, TFHE
@@ -86,17 +91,28 @@ class ModularModel(BaseModel):
         """Build CNN with optional FHE and quantum enhancements."""
         channels = self.config.conv_channels or [16, 32, 64]
         input_channels = self.config.input_shape[0]
+        kernel_size = getattr(self.modular_config, 'kernel_size', 3)
+        pooling_type = getattr(self.modular_config, 'pooling_type', 'max')
         
         # Feature extractor
         conv_layers = []
         in_channels = input_channels
         
         for out_channels in channels:
-            conv_layers.extend([
-                nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
-                self._get_activation('features'),
-                nn.MaxPool2d(kernel_size=2, stride=2)
-            ])
+            # Add convolution layer
+            padding = kernel_size // 2  # Maintain spatial dimensions
+            conv_layers.append(
+                nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, padding=padding)
+            )
+            conv_layers.append(self._get_activation('features'))
+            
+            # Add pooling layer based on configuration
+            if pooling_type == "max":
+                conv_layers.append(nn.MaxPool2d(kernel_size=2, stride=2))
+            elif pooling_type == "avg":
+                conv_layers.append(nn.AvgPool2d(kernel_size=2, stride=2))
+            # If pooling_type == "none", don't add any pooling
+            
             in_channels = out_channels
         
         self.features = self._wrap_with_enhancements(
@@ -122,7 +138,18 @@ class ModularModel(BaseModel):
             ])
             in_features = hidden_dim
         
+        # Final output layer
         classifier_layers.append(nn.Linear(in_features, self.config.num_classes))
+        
+        # Add output activation if specified
+        output_activation = getattr(self.modular_config, 'output_activation', 'none')
+        if output_activation == "sigmoid":
+            classifier_layers.append(nn.Sigmoid())
+        elif output_activation == "softmax":
+            classifier_layers.append(nn.Softmax(dim=1))
+        elif output_activation == "relu":
+            classifier_layers.append(nn.ReLU())
+        # If output_activation == "none", don't add any activation
         
         self.classifier = self._wrap_with_enhancements(
             nn.Sequential(*classifier_layers), 'classifier'
